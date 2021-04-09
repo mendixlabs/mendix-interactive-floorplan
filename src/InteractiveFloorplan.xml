@@ -7,11 +7,90 @@
     <description>Interactive Floorplan</description>
     <icon/>
     <properties>
-        <propertyGroup caption="General">
-            <property key="sampleText" type="string" required="false">
-                <caption>Default value</caption>
-                <description>Sample text input</description>
+        <!-- FLOOR-->
+        <propertyGroup caption="Floor">
+            <property key="textSVG" type="expression" required="true" defaultValue="">
+                <caption>SVG</caption>
+                <description>This is the background of the floorplan. It should be an SVG.</description>
+                <returnType type="String" />
             </property>
+            <property key="textSVGViewBox" type="expression" required="true" defaultValue="">
+                <caption>Viewbox</caption>
+                <description>An SVG has a viewbox property. We need to have this separately in order to align the desk perfectly</description>
+                <returnType type="String" />
+            </property>
+        </propertyGroup>
+
+        <!-- ASSETS -->
+        <propertyGroup caption="Assets">
+            <propertyGroup caption="Data">
+                <property key="dataAssets" type="datasource" isList="true" required="true">
+                    <caption>Asset Datasource</caption>
+                    <description>This is a datasource that represents the assets you want to position on the floorplan, e.g. Desks</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Properties">
+                <property key="getAssetID" type="expression" required="true" defaultValue="" dataSource="dataAssets">
+                    <caption>Asset ID</caption>
+                    <description>This represents the Asset ID that is visible, for example the Desk Number.</description>
+                    <returnType type="String" />
+                </property>
+                <property key="getAssetXML" type="expression" required="true" defaultValue="" dataSource="dataAssets">
+                    <caption>Asset XML</caption>
+                    <description>This is the XML that is associated with the Asset element. This should be a &lt;g&gt; element.</description>
+                    <returnType type="String" />
+                </property>
+                <property key="getAssetTransform" type="expression" required="true" defaultValue="" dataSource="dataAssets">
+                    <caption>Asset Transform</caption>
+                    <description>In order to properly place the asset on the floorplan, we need the CSS transform property that is affecting the position and rotation of the asset.</description>
+                    <returnType type="String" />
+                </property>
+                <property key="getAssetClassName" type="expression" required="false" defaultValue="" dataSource="dataAssets">
+                    <caption>Asset className</caption>
+                    <description>This is a dynamic className for an Asset, for example to make them a different color, influence interaction patterns (clickable) using CSS.</description>
+                    <returnType type="String" />
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Interaction">
+                <property key="getAssetClickable" type="expression" required="true" defaultValue="" dataSource="dataAssets">
+                    <caption>Clickable</caption>
+                    <description>Should the asset be clickable?</description>
+                    <returnType type="Boolean" />
+                </property>
+                <property key="getAssetShowpopup" type="expression" required="true" defaultValue="" dataSource="dataAssets">
+                    <caption>Popup</caption>
+                    <description>Should the asset have a popup? This uses the popup area of the widget.</description>
+                    <returnType type="Boolean" />
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- MISC -->
+        <propertyGroup caption="Misc">
+            <propertyGroup caption="Selectors">
+                <property key="uiSelectorText" type="string" required="false" defaultValue="text">
+                    <caption>Text Selector</caption>
+                    <description>D3 selector for selecting the text element in your Asset SVG. If you do not choose one, the widget will not update the text inside. Only change this if needed.</description>
+                </property>
+                <property key="uiSelectorGElement" type="string" required="false" defaultValue="rect">
+                    <caption>Shape selector</caption>
+                    <description>D3 selector for the shape inside the Asset SVG. This is used to manipulate the styling when needed. Only change this if needed.</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Attributes">
+                <property key="getAssetShapeStyling" type="expression" dataSource="dataAssets" required="false" >
+                    <caption>Shape style</caption>
+                    <description>Attribute that defines the shape styling (see above)</description>
+                    <returnType type="String" />
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- COMMON -->
+        <propertyGroup caption="Common">
+            <systemProperty key="Name"/>
+            <systemProperty key="Visibility"/>
+            <systemProperty key="Editability"/>
         </propertyGroup>
     </properties>
 </widget>

@@ -10,5 +10,5 @@ export class preview extends Component<InteractiveFloorplanPreviewProps> {
 }
 
 export function getPreviewCss(): string {
-    return require("./ui/InteractiveFloorplan.css");
+    return require("./ui/InteractiveFloorplan.scss");
 }

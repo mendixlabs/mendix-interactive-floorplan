@@ -1,0 +1,73 @@
+.floorPlan {
+    position: relative;
+
+    &_bg {
+        // -webkit-transition: opacity 50ms ease-in-out;
+        // -moz-transition: opacity 50ms ease-in-out;
+        // -ms-transition: opacity 50ms ease-in-out;
+        // -o-transition: opacity 50ms ease-in-out;
+        // transition: opacity 50ms ease-in-out;
+    }
+
+    &_overlay {
+        border: 1px solid #000;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+    }
+
+    &.el-hover {
+        .floorPlan_bg {
+            -webkit-filter: grayscale(100);
+            filter: grayscale(100);
+            opacity: 0.4;
+        }
+        .asset:not(.hover) {
+            opacity: 0.6;
+        }
+    }
+
+    .asset {
+        &.clickable {
+            cursor: pointer;
+            text {
+                cursor: pointer;
+            }
+        }
+        &.ignore {
+            text {
+                opacity: 0.6;
+            }
+        }
+        text {
+            cursor: default;
+            pointer-events: none;
+        }
+        // -webkit-transition: opacity 50ms ease-in-out;
+        // -moz-transition: opacity 50ms ease-in-out;
+        // -ms-transition: opacity 50ms ease-in-out;
+        // -o-transition: opacity 50ms ease-in-out;
+        // transition: opacity 50ms ease-in-out;
+    }
+
+    div.tooltip {
+        background-color: #fff;
+        padding: 7px;
+        text-shadow: #f5f5f5 0 1px 0;
+        font: 15px Helvetica Neue;
+        border: 2.5px solid;
+        border-color: black;
+        border-radius: 3px;
+        opacity: 0.95;
+        position: absolute;
+        box-shadow: rgba(0, 0, 0, 0.3) 0 2px 10px;
+        min-width: 250px;
+
+        &.hide {
+            visibility: hidden !important;
+        }
+    }
+}

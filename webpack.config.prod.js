@@ -32,7 +32,7 @@ const customConfig = {
                     output: {
                         comments: false,
                         beautify: false,
-                        preamble: `/* Scheduler Widget || Version ${pkg.version} || Apache 2 LICENSE || Developer: ${pkg.author} || Please report any issues here: https://github.com/JelteMX/mendix-scheduler-widget/issues */\n`
+                        preamble: `/* Interactive Floorplan Widget || Version ${pkg.version} || Apache 2 LICENSE || Developer: ${pkg.author} */\n`
                     },
                     toplevel: false,
                     nameCache: null,
