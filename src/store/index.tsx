@@ -1,21 +1,13 @@
 import { createContext, createElement, Dispatch, useReducer } from "react";
 
 export type StoreState = {
-    transform: {
-        x: number;
-        y: number;
-        k: number;
-    };
+    hoverElement: string | null;
 };
 
-export type StoreAction = { type: "ZOOM"; transform: { x: number; y: number; k: number } };
+export type StoreAction = { type: "HOVER"; id: string | null };
 
 const initialState = {
-    transform: {
-        x: 0,
-        y: 0,
-        k: 0
-    }
+    hoverElement: null
 };
 
 const StoreContext = createContext<{
@@ -27,10 +19,10 @@ const StoreContext = createContext<{
 });
 
 const mainReducer = (state: StoreState, action: StoreAction): StoreState => {
-    if (action.type === "ZOOM") {
+    if (action.type === "HOVER") {
         return {
             ...state,
-            transform: action.transform
+            hoverElement: action.id
         };
     }
     return state;

@@ -9,9 +9,10 @@ export interface FloorPlanProps {
     svg: string;
     svgMainID: string;
     viewBox: string;
+    className: string;
 }
 
-const FloorPlan = ({ svg, svgMainID, viewBox, assets }: FloorPlanProps): JSX.Element => {
+const FloorPlan = ({ svg, svgMainID, viewBox, assets, className }: FloorPlanProps): JSX.Element => {
     const [rendered, setRendered] = useState(false);
 
     const backgroundRef = useRef<HTMLDivElement | null>(null);
@@ -42,15 +43,14 @@ const FloorPlan = ({ svg, svgMainID, viewBox, assets }: FloorPlanProps): JSX.Ele
         );
 
         setRendered(true);
-    }, [rendered, svg, viewBox]);
-
+    }, [rendered, svg, svgMainID, viewBox]);
 
     return (
-        <div className={classNames("floorPlan")}>
+        <div className={classNames("floorPlan", className)}>
             <div className={classNames("floorPlan_bg")} ref={backgroundRef} />
             <svg className={classNames("floorPlan_overlay")} ref={overlayRef} viewBox={viewBox}>
                 <g ref={mainElementRef} transform={zoomTransform}>
-                    {assets.map((asset) => (
+                    {assets.map(asset => (
                         <Asset key={asset.id} asset={asset} />
                     ))}
                 </g>

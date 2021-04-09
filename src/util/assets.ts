@@ -8,6 +8,7 @@ export interface AssetObject {
     transform: string;
     shapeStyling: string;
     isClickable: boolean;
+    className: string;
 }
 
 export const getAssetObjects = (
@@ -17,10 +18,12 @@ export const getAssetObjects = (
         getTransform: (obj: ObjectItem) => DynamicValue<string>;
         getClickable: (obj: ObjectItem) => DynamicValue<boolean>;
         getShapeStyling?: (obj: ObjectItem) => DynamicValue<string>;
+        getClassName?: (obj: ObjectItem) => DynamicValue<string>;
     },
+    clickActionDefined: boolean,
     items?: ObjectItem[]
 ): AssetObject[] => {
-    const { getTitle, getXML, getTransform, getClickable, getShapeStyling } = funcs;
+    const { getTitle, getXML, getTransform, getClickable, getShapeStyling, getClassName } = funcs;
     if (!items) {
         return [];
     }
@@ -29,8 +32,9 @@ export const getAssetObjects = (
         const title = getTitle(obj).value;
         const xml = getXML(obj).value;
         const transform = getTransform(obj).value;
-        const isClickable = getClickable(obj).value;
+        const isClickable = clickActionDefined && getClickable(obj).value;
         const shapeStyling = getShapeStyling ? getShapeStyling(obj).value : "";
+        const className = getClassName ? getClassName(obj).value : "";
 
         return {
             id,
@@ -39,7 +43,8 @@ export const getAssetObjects = (
             xml,
             transform,
             shapeStyling,
-            isClickable
+            isClickable,
+            className
         } as AssetObject;
     });
 

@@ -4,7 +4,7 @@
  * @author Mendix UI Content Team
  */
 import { CSSProperties } from "react";
-import { DynamicValue, ListValue, ListExpressionValue } from "mendix";
+import { DynamicValue, ListValue, ListActionValue, ListExpressionValue } from "mendix";
 
 export interface InteractiveFloorplanContainerProps {
     name: string;
@@ -20,6 +20,7 @@ export interface InteractiveFloorplanContainerProps {
     getAssetClassName?: ListExpressionValue<string>;
     getAssetClickable: ListExpressionValue<boolean>;
     getAssetShowpopup: ListExpressionValue<boolean>;
+    actionClickAsset?: ListActionValue;
     uiSelectorText: string;
     uiSelectorGElement: string;
     getAssetShapeStyling?: ListExpressionValue<string>;
@@ -37,6 +38,7 @@ export interface InteractiveFloorplanPreviewProps {
     getAssetClassName: string;
     getAssetClickable: string;
     getAssetShowpopup: string;
+    actionClickAsset: {} | null;
     uiSelectorText: string;
     uiSelectorGElement: string;
     getAssetShapeStyling: string;

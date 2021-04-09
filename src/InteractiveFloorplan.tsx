@@ -16,8 +16,10 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
             getXML: props.getAssetXML,
             getTransform: props.getAssetTransform,
             getShapeStyling: props.getAssetShapeStyling,
-            getClickable: props.getAssetClickable
+            getClickable: props.getAssetClickable,
+            getClassName: props.getAssetClassName
         },
+        !!props.actionClickAsset,
         props.dataAssets.items
     );
     const floorPlanSVG = props.textSVG.value;
@@ -25,17 +27,27 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
 
     const contextVariables: ContextVariables = {
         textSelector: props.uiSelectorText,
-        gElementSelector: props.uiSelectorGElement
-    }
+        gElementSelector: props.uiSelectorGElement,
+        elementClick: props.actionClickAsset ? props.actionClickAsset : null
+    };
 
-    return <StateProvider>
+    return (
+        <StateProvider>
             <FloorPlanContext.Provider value={contextVariables}>
-        { !floorPlanSVG || !floorPlanViewBox ? undefined : (
-            <FloorPlan assets={assets} svg={floorPlanSVG} svgMainID={svgMainID} viewBox={floorPlanViewBox} />
-        )}
-        </FloorPlanContext.Provider>
-    </StateProvider>
-
+                {!floorPlanSVG || !floorPlanViewBox ? (
+                    undefined
+                ) : (
+                    <FloorPlan
+                        className={props.class}
+                        assets={assets}
+                        svg={floorPlanSVG}
+                        svgMainID={svgMainID}
+                        viewBox={floorPlanViewBox}
+                    />
+                )}
+            </FloorPlanContext.Provider>
+        </StateProvider>
+    );
 };
 
 export default InteractiveFloorplan;
