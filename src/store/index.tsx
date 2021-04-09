@@ -1,13 +1,26 @@
 import { createContext, createElement, Dispatch, useReducer } from "react";
+import { ObjectItem } from "mendix";
 
 export type StoreState = {
-    hoverElement: string | null;
+    hoverElement: ObjectItem | null;
+    showPopup: boolean;
+    hoverCoords: {
+        layerX: number;
+        layerY: number;
+    };
 };
 
-export type StoreAction = { type: "HOVER"; id: string | null };
+export type StoreAction =
+    | { type: "HOVER"; id: ObjectItem | null; popup: boolean }
+    | { type: "COORS"; layerX: number; layerY: number };
 
 const initialState = {
-    hoverElement: null
+    hoverElement: null,
+    showPopup: false,
+    hoverCoords: {
+        layerX: 0,
+        layerY: 0
+    }
 };
 
 const StoreContext = createContext<{
@@ -22,7 +35,16 @@ const mainReducer = (state: StoreState, action: StoreAction): StoreState => {
     if (action.type === "HOVER") {
         return {
             ...state,
-            hoverElement: action.id
+            hoverElement: action.id,
+            showPopup: action.popup
+        };
+    } else if (action.type === "COORS") {
+        return {
+            ...state,
+            hoverCoords: {
+                layerX: action.layerX,
+                layerY: action.layerY
+            }
         };
     }
     return state;

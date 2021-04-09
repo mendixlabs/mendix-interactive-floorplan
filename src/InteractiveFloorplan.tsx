@@ -17,6 +17,7 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
             getTransform: props.getAssetTransform,
             getShapeStyling: props.getAssetShapeStyling,
             getClickable: props.getAssetClickable,
+            getPopupEnabled: props.getAssetShowpopup,
             getClassName: props.getAssetClassName
         },
         !!props.actionClickAsset,
@@ -28,7 +29,8 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
     const contextVariables: ContextVariables = {
         textSelector: props.uiSelectorText,
         gElementSelector: props.uiSelectorGElement,
-        elementClick: props.actionClickAsset ? props.actionClickAsset : null
+        elementClick: props.actionClickAsset ? props.actionClickAsset : null,
+        popupArea: props.popupArea ? props.popupArea : null
     };
 
     return (

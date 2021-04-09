@@ -62,6 +62,12 @@
                     <returnType type="Boolean" />
                 </property>
             </propertyGroup>
+            <propertyGroup caption="Areas">
+                <property key="popupArea" type="widgets" required="false" dataSource="dataAssets">
+                    <caption>Popup Area</caption>
+                    <description>Show a popup when hovering over the element</description>
+                </property>
+            </propertyGroup>
         </propertyGroup>
 
         <!-- ACTIONS -->

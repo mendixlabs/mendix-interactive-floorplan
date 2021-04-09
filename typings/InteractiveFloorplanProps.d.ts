@@ -3,8 +3,8 @@
  * WARNING: All changes made to this file will be overwritten
  * @author Mendix UI Content Team
  */
-import { CSSProperties } from "react";
-import { DynamicValue, ListValue, ListActionValue, ListExpressionValue } from "mendix";
+import { ComponentType, CSSProperties } from "react";
+import { DynamicValue, ListValue, ListActionValue, ListExpressionValue, ListWidgetValue } from "mendix";
 
 export interface InteractiveFloorplanContainerProps {
     name: string;
@@ -20,6 +20,7 @@ export interface InteractiveFloorplanContainerProps {
     getAssetClassName?: ListExpressionValue<string>;
     getAssetClickable: ListExpressionValue<boolean>;
     getAssetShowpopup: ListExpressionValue<boolean>;
+    popupArea?: ListWidgetValue;
     actionClickAsset?: ListActionValue;
     uiSelectorText: string;
     uiSelectorGElement: string;
@@ -38,6 +39,7 @@ export interface InteractiveFloorplanPreviewProps {
     getAssetClassName: string;
     getAssetClickable: string;
     getAssetShowpopup: string;
+    popupArea: { widgetCount: number; renderer: ComponentType };
     actionClickAsset: {} | null;
     uiSelectorText: string;
     uiSelectorGElement: string;
