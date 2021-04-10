@@ -10,10 +10,9 @@ $.fn.css = css;
 
 export interface AssetProps {
     asset: AssetObject;
-    overlayElement: SVGSVGElement | null;
 }
 
-const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
+const Asset = ({ asset }: AssetProps): JSX.Element => {
     const { textSelector, gElementSelector, elementClick } = useContext(FloorPlanContext);
     const { dispatch } = useContext(StoreContext);
 
@@ -35,8 +34,10 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
             const selection = $(textSelector, assetRef.current);
             selection.text(asset.title);
         }
-        setTitle(true);
-    }, [asset.title, asset.xml, assetRef.current, textSelector, titleSet]);
+        if (!titleSet) {
+            setTitle(true);
+        }
+    }, [asset.title, asset.xml, textSelector, titleSet]);
 
     // STYLING
     useEffect(() => {
@@ -54,41 +55,37 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
             }
         }
 
-        setStyle(true);
-    }, [asset, asset.id, asset.shapeStyling, gElementSelector, styleSet, assetRef.current]);
+        if (!styleSet) {
+            setStyle(true);
+        }
+    }, [asset, asset.id, asset.shapeStyling, gElementSelector, styleSet]);
 
-    const onClick = (): void => {
+    const onClick = useCallback((): void => {
         if (elementClick && asset.isClickable && asset.obj) {
             const action = elementClick(asset.obj);
             if (action && action.canExecute && !action.isExecuting) {
                 action.execute();
             }
         }
-    };
+    }, [asset.isClickable, asset.obj, elementClick]);
 
-    const onHover = (state: boolean): void => {
-        setHover(state);
-        dispatch({ type: "HOVER", id: state ? asset.obj : null, popup: state && asset.popupEnabled });
-    };
+    const onHover = useCallback(
+        (state: boolean): void => {
+            setHover(state);
+            dispatch({ type: "HOVER", id: state ? asset.obj : null, popup: state && asset.popupEnabled });
+        },
+        [asset.obj, asset.popupEnabled, dispatch]
+    );
 
     const dispathMouseEvent = useCallback(
         (e: React.MouseEvent<SVGGElement, MouseEvent>): void => {
-            const clientRect = (overlayElement as SVGSVGElement).getBoundingClientRect();
-            const { width, height } = clientRect;
-            const posX = clientRect && e.nativeEvent.offsetX >= width / 2 ? "right" : "left";
-            const posY = clientRect && e.nativeEvent.offsetY >= height / 2 ? "bottom" : "top";
-
             dispatch({
                 type: "COORDS",
                 layerX: e.nativeEvent.offsetX,
-                layerY: e.nativeEvent.offsetY,
-                posX,
-                posY,
-                width,
-                height
+                layerY: e.nativeEvent.offsetY
             });
         },
-        [dispatch, overlayElement]
+        [dispatch]
     );
 
     return (
@@ -114,5 +111,7 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
         />
     );
 };
+
+// Asset.whyDidYouRender = true;
 
 export default Asset;

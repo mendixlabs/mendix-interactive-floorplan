@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { createElement, useContext, useRef } from "react";
+import { createElement, Fragment, useContext, useEffect, useMemo, useRef } from "react";
 import { AssetObject } from "../util/assets";
 // import { select, event, zoom } from "d3";
 import Asset from "./Asset";
@@ -16,10 +16,29 @@ export interface FloorPlanProps {
 }
 
 const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Element => {
-    const { state } = useContext(StoreContext);
+    const { state, dispatch } = useContext(StoreContext);
 
     const overlayRef = useRef<SVGSVGElement | null>(null);
-    const mainElementRef = useRef<SVGGElement | null>(null);
+
+    useEffect(() => {
+        if (overlayRef.current) {
+            const box = overlayRef.current.getBoundingClientRect();
+            if (box) {
+                dispatch({ type: "SETSIZE", width: box.width, height: box.height });
+            }
+        }
+    }, [dispatch]);
+
+    const AssetList = useMemo(
+        () => (
+            <Fragment>
+                {assets.map(asset => (
+                    <Asset key={asset.id} asset={asset} />
+                ))}
+            </Fragment>
+        ),
+        [assets]
+    );
 
     return (
         <div
@@ -34,13 +53,8 @@ const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Ele
                             ref={overlayRef}
                             viewBox={viewBox}
                         >
-                            <g
-                                ref={mainElementRef}
-                                transform={`translate(${translation.x},${translation.y}) scale(${scale})`}
-                            >
-                                {assets.map(asset => (
-                                    <Asset key={asset.id} asset={asset} overlayElement={overlayRef.current} />
-                                ))}
+                            <g transform={`translate(${translation.x},${translation.y}) scale(${scale})`}>
+                                {AssetList}
                             </g>
                         </svg>
                     </div>

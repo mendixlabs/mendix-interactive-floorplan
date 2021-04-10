@@ -1,17 +1,14 @@
 import { createContext, createElement, Dispatch, useReducer } from "react";
 import { ObjectItem } from "mendix";
 
-type PositionX = "left" | "right";
-type PositionY = "top" | "bottom";
-
 export type StoreState = {
     hoverElement: ObjectItem | null;
     showPopup: boolean;
     hoverCoords: {
         layerX: number;
         layerY: number;
-        posX: "left" | "right";
-        posY: "top" | "bottom";
+    };
+    svgSizes: {
         width: number;
         height: number;
     };
@@ -23,22 +20,19 @@ export type StoreAction =
           type: "COORDS";
           layerX: number;
           layerY: number;
-          posX: PositionX;
-          posY: PositionY;
-          width: number;
-          height: number;
-      };
+      }
+    | { type: "SETSIZE"; width: number; height: number };
 
 const initialState: StoreState = {
     hoverElement: null,
     showPopup: false,
     hoverCoords: {
         layerX: 0,
-        layerY: 0,
-        posX: "left",
-        posY: "top",
-        height: 0,
-        width: 0
+        layerY: 0
+    },
+    svgSizes: {
+        width: 1,
+        height: 1
     }
 };
 
@@ -62,11 +56,15 @@ const mainReducer = (state: StoreState, action: StoreAction): StoreState => {
             ...state,
             hoverCoords: {
                 layerX: action.layerX,
-                layerY: action.layerY,
-                posX: action.posX,
-                posY: action.posY,
-                height: action.height,
-                width: action.width
+                layerY: action.layerY
+            }
+        };
+    } else if (action.type === "SETSIZE") {
+        return {
+            ...state,
+            svgSizes: {
+                width: action.width,
+                height: action.height
             }
         };
     }
