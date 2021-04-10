@@ -24,6 +24,7 @@ export interface InteractiveFloorplanContainerProps {
     actionClickAsset?: ListActionValue;
     uiSelectorText: string;
     uiSelectorGElement: string;
+    uiMainSelectorG: string;
     getAssetShapeStyling?: ListExpressionValue<string>;
 }
 
@@ -43,5 +44,6 @@ export interface InteractiveFloorplanPreviewProps {
     actionClickAsset: {} | null;
     uiSelectorText: string;
     uiSelectorGElement: string;
+    uiMainSelectorG: string;
     getAssetShapeStyling: string;
 }

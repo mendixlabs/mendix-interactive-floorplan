@@ -10,7 +10,7 @@ export interface AssetProps {
     overlayElement: SVGSVGElement | null;
 }
 
-const Asset = ({ asset }: AssetProps): JSX.Element => {
+const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
     const { textSelector, gElementSelector, elementClick } = useContext(FloorPlanContext);
     const { dispatch } = useContext(StoreContext);
 
@@ -63,16 +63,33 @@ const Asset = ({ asset }: AssetProps): JSX.Element => {
 
     // Tooltip
     useEffect(() => {
-        if (!assetRef.current || !asset.popupEnabled) {
+        if (!assetRef.current || !asset.popupEnabled || !overlayElement) {
             return;
         }
 
         const selection = select(assetRef.current);
-        selection.on("mouseover", () => {
-            console.log(event.layerX, event.layerY);
-            dispatch({ type: "COORS", layerX: event.layerX, layerY: event.layerY });
-        });
-    }, [assetRef, asset.popupEnabled]);
+        selection
+            .on("mouseover", () => {
+                const clientRect = overlayElement.getBoundingClientRect();
+                const { width, height } = clientRect;
+                const posX = clientRect && event.layerX >= width / 2 ? "right" : "left";
+                const posY = clientRect && event.layerY >= height / 2 ? "bottom" : "top";
+
+                dispatch({ type: "COORDS", layerX: event.layerX, layerY: event.layerY, posX, posY, width, height });
+            })
+            .on("mousemove", () => {
+                const clientRect = overlayElement.getBoundingClientRect();
+                const { width, height } = clientRect;
+                const posX = clientRect && event.layerX >= width / 2 ? "right" : "left";
+                const posY = clientRect && event.layerY >= height / 2 ? "bottom" : "top";
+
+                dispatch({ type: "COORDS", layerX: event.layerX, layerY: event.layerY, posX, posY, width, height });
+            });
+
+        return () => {
+            selection.on("mouseover", null).on("mousemove", null);
+        };
+    }, [assetRef, asset.popupEnabled, overlayElement, dispatch]);
 
     const onClick = (): void => {
         if (elementClick && asset.isClickable && asset.obj) {
@@ -84,23 +101,6 @@ const Asset = ({ asset }: AssetProps): JSX.Element => {
     };
 
     const onHover = (state: boolean): void => {
-        // try {
-        //     if (overlayElement && assetRef.current) {
-        //         const bbBox = assetRef.current.getBBox();
-        //         const x = bbBox.x + bbBox.width / 2;
-        //         const y = bbBox.y + bbBox.height / 2;
-        //         const offset = overlayElement.getBoundingClientRect();
-        //         const mat = assetRef.current.getScreenCTM() as DOMMatrix;
-        //         const absX = mat.a * x + mat.c * y + mat.e - offset.left;
-        //         const absY = mat.b * x + mat.d * y + mat.f - offset.top;
-
-        //         dispatch({ type: "COORS", layerX: absX, layerY: absY });
-        //     }
-
-        // } catch (error) {
-        //     console.warn(error);
-        // }
-
         setHover(state);
         dispatch({ type: "HOVER", id: state ? asset.obj : null, popup: state && asset.popupEnabled });
     };

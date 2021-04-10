@@ -89,6 +89,10 @@
                     <caption>Shape selector</caption>
                     <description>D3 selector for the shape inside the Asset SVG. This is used to manipulate the styling when needed. Only change this if needed.</description>
                 </property>
+                <property key="uiMainSelectorG" type="string" required="true" defaultValue="#main">
+                    <caption>Main selector in SVG</caption>
+                    <description>Only change this when needed, otherwise leave as is.</description>
+                </property>
             </propertyGroup>
             <propertyGroup caption="Attributes">
                 <property key="getAssetShapeStyling" type="expression" dataSource="dataAssets" required="false">

@@ -9,7 +9,6 @@ import "./ui/InteractiveFloorplan.scss";
 import { getAssetObjects } from "./util/assets";
 
 const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactNode => {
-    const svgMainID = "main";
     const assets = getAssetObjects(
         {
             getTitle: props.getAssetID,
@@ -29,6 +28,7 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
     const contextVariables: ContextVariables = {
         textSelector: props.uiSelectorText,
         gElementSelector: props.uiSelectorGElement,
+        mainSelector: props.uiMainSelectorG,
         elementClick: props.actionClickAsset ? props.actionClickAsset : null,
         popupArea: props.popupArea ? props.popupArea : null
     };
@@ -39,13 +39,7 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
                 {!floorPlanSVG || !floorPlanViewBox ? (
                     undefined
                 ) : (
-                    <FloorPlan
-                        className={props.class}
-                        assets={assets}
-                        svg={floorPlanSVG}
-                        svgMainID={svgMainID}
-                        viewBox={floorPlanViewBox}
-                    />
+                    <FloorPlan className={props.class} assets={assets} svg={floorPlanSVG} viewBox={floorPlanViewBox} />
                 )}
             </FloorPlanContext.Provider>
         </StateProvider>
