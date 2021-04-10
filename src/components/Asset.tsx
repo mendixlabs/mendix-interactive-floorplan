@@ -1,9 +1,12 @@
 import classNames from "classnames";
-import { select } from "d3-selection";
+import { $, text, css } from "dom7";
 import React, { createElement, CSSProperties, useContext, useEffect, useRef, useState } from "react";
 import { FloorPlanContext } from "../context/FloorPlanContext";
 import { StoreContext } from "../store";
 import { AssetObject } from "../util/assets";
+
+$.fn.text = text;
+$.fn.css = css;
 
 export interface AssetProps {
     asset: AssetObject;
@@ -29,8 +32,8 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
             return;
         }
         if (textSelector) {
-            const selection = select(assetRef.current);
-            selection.select(textSelector).text(asset.title);
+            const selection = $(textSelector, assetRef.current);
+            selection.text(asset.title);
         }
         setTitle(true);
     }, [asset.title, asset.xml, assetRef, textSelector, titleSet]);
@@ -42,17 +45,10 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
         }
 
         if (gElementSelector && asset.shapeStyling) {
-            const selection = select(assetRef.current);
-            const shape = selection.select(gElementSelector);
+            const shape = $(gElementSelector, assetRef.current);
             try {
                 const styleProps: { [key: string]: string } = JSON.parse(asset.shapeStyling);
-                if (Object.keys(styleProps).length > 0) {
-                    for (const key in styleProps) {
-                        if (Object.prototype.hasOwnProperty.call(styleProps, key)) {
-                            shape.style(key, styleProps[key]);
-                        }
-                    }
-                }
+                shape.css(styleProps);
             } catch (error) {
                 console.warn("warning, styling not applied for: ", asset.id, error);
             }

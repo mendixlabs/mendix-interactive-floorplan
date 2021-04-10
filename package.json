@@ -26,16 +26,14 @@
     "@mendix/pluggable-widgets-tools": "^8.14.0",
     "@types/big.js": "^4.0.5",
     "@types/classnames": "^2.2.4",
-    "@types/d3": "^5.7.2",
     "@types/react": "~16.9.0",
     "@types/react-dom": "~16.9.0",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "mendix-client": "^7.15.8",
     "webpack-bundle-analyzer": "^4.4.0"
   },
   "dependencies": {
-    "ahooks": "^2.10.0",
     "classnames": "^2.2.6",
-    "d3": "^5.16.0"
+    "dom7": "^3.0.0",
+    "react-map-interaction": "^2.0.0"
   }
 }

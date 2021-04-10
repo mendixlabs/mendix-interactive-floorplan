@@ -1,11 +1,12 @@
 import classNames from "classnames";
-import { createElement, useContext, useEffect, useRef, useState } from "react";
+import { createElement, useContext, useRef } from "react";
 import { AssetObject } from "../util/assets";
-import { select, event, zoom } from "d3";
+// import { select, event, zoom } from "d3";
 import Asset from "./Asset";
 import { StoreContext } from "../store";
 import Popup from "./Popup";
-import { FloorPlanContext } from "../context/FloorPlanContext";
+import { MapInteraction } from "react-map-interaction";
+import Background from "./Background";
 
 export interface FloorPlanProps {
     assets: AssetObject[];
@@ -15,52 +16,36 @@ export interface FloorPlanProps {
 }
 
 const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Element => {
-    const [rendered, setRendered] = useState(false);
     const { state } = useContext(StoreContext);
-    const { mainSelector } = useContext(FloorPlanContext);
 
-    const backgroundRef = useRef<HTMLDivElement | null>(null);
     const overlayRef = useRef<SVGSVGElement | null>(null);
     const mainElementRef = useRef<SVGGElement | null>(null);
-    const [zoomTransform, setZoomTransform] = useState("");
-
-    useEffect(() => {
-        if (rendered || !backgroundRef.current || !overlayRef.current || !mainElementRef.current) {
-            return;
-        }
-
-        const overlay = select(overlayRef.current);
-        const main = select(backgroundRef.current)
-            .select("svg")
-            .select(mainSelector);
-
-        overlay.call(
-            zoom().on("zoom", () => {
-                const { x, y, k } = event.transform;
-                setZoomTransform(`translate(${x},${y}) scale(${k})`);
-                main.attr("transform", event.transform);
-            })
-        );
-
-        setRendered(true);
-    }, [mainSelector, rendered, svg, viewBox]);
 
     return (
         <div
             className={classNames("interactive-floorplan", className, { "hover-element": state.hoverElement !== null })}
         >
-            <div
-                className={classNames("interactive-floorplan--background")}
-                ref={backgroundRef}
-                dangerouslySetInnerHTML={{ __html: svg }}
-            />
-            <svg className={classNames("interactive-floorplan--overlay")} ref={overlayRef} viewBox={viewBox}>
-                <g ref={mainElementRef} transform={zoomTransform}>
-                    {assets.map(asset => (
-                        <Asset key={asset.id} asset={asset} overlayElement={overlayRef.current} />
-                    ))}
-                </g>
-            </svg>
+            <MapInteraction maxScale={6} minScale={0.6}>
+                {({ translation, scale }) => (
+                    <div>
+                        <Background svg={svg} x={translation.x} y={translation.y} scale={scale} />
+                        <svg
+                            className={classNames("interactive-floorplan--overlay")}
+                            ref={overlayRef}
+                            viewBox={viewBox}
+                        >
+                            <g
+                                ref={mainElementRef}
+                                transform={`translate(${translation.x},${translation.y}) scale(${scale})`}
+                            >
+                                {assets.map(asset => (
+                                    <Asset key={asset.id} asset={asset} overlayElement={overlayRef.current} />
+                                ))}
+                            </g>
+                        </svg>
+                    </div>
+                )}
+            </MapInteraction>
             <Popup />
         </div>
     );
