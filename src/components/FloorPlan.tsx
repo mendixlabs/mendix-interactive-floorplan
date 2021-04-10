@@ -29,13 +29,10 @@ const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Ele
             return;
         }
 
-        const background = select(backgroundRef.current);
         const overlay = select(overlayRef.current);
-
-        // background.html(svg);
-
-        const svgElement = background.select("svg");
-        const main = svgElement.select(mainSelector);
+        const main = select(backgroundRef.current)
+            .select("svg")
+            .select(mainSelector);
 
         overlay.call(
             zoom().on("zoom", () => {
