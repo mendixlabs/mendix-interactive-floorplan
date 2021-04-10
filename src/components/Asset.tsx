@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import { event, select } from "d3-selection";
-import { createElement, CSSProperties, useContext, useEffect, useRef, useState } from "react";
+import { select } from "d3-selection";
+import React, { createElement, CSSProperties, useContext, useEffect, useRef, useState } from "react";
 import { FloorPlanContext } from "../context/FloorPlanContext";
 import { StoreContext } from "../store";
 import { AssetObject } from "../util/assets";
@@ -61,36 +61,6 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
         setStyle(true);
     }, [asset, asset.id, asset.shapeStyling, gElementSelector, styleSet, assetRef]);
 
-    // Tooltip
-    useEffect(() => {
-        if (!assetRef.current || !asset.popupEnabled || !overlayElement) {
-            return;
-        }
-
-        const selection = select(assetRef.current);
-        selection
-            .on("mouseover", () => {
-                const clientRect = overlayElement.getBoundingClientRect();
-                const { width, height } = clientRect;
-                const posX = clientRect && event.layerX >= width / 2 ? "right" : "left";
-                const posY = clientRect && event.layerY >= height / 2 ? "bottom" : "top";
-
-                dispatch({ type: "COORDS", layerX: event.layerX, layerY: event.layerY, posX, posY, width, height });
-            })
-            .on("mousemove", () => {
-                const clientRect = overlayElement.getBoundingClientRect();
-                const { width, height } = clientRect;
-                const posX = clientRect && event.layerX >= width / 2 ? "right" : "left";
-                const posY = clientRect && event.layerY >= height / 2 ? "bottom" : "top";
-
-                dispatch({ type: "COORDS", layerX: event.layerX, layerY: event.layerY, posX, posY, width, height });
-            });
-
-        return () => {
-            selection.on("mouseover", null).on("mousemove", null);
-        };
-    }, [assetRef, asset.popupEnabled, overlayElement, dispatch]);
-
     const onClick = (): void => {
         if (elementClick && asset.isClickable && asset.obj) {
             const action = elementClick(asset.obj);
@@ -105,6 +75,23 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
         dispatch({ type: "HOVER", id: state ? asset.obj : null, popup: state && asset.popupEnabled });
     };
 
+    const dispathMouseEvent = (e: React.MouseEvent<SVGGElement, MouseEvent>): void => {
+        const clientRect = (overlayElement as SVGSVGElement).getBoundingClientRect();
+        const { width, height } = clientRect;
+        const posX = clientRect && e.nativeEvent.offsetX >= width / 2 ? "right" : "left";
+        const posY = clientRect && e.nativeEvent.offsetY >= height / 2 ? "bottom" : "top";
+
+        dispatch({
+            type: "COORDS",
+            layerX: e.nativeEvent.offsetX,
+            layerY: e.nativeEvent.offsetY,
+            posX,
+            posY,
+            width,
+            height
+        });
+    };
+
     return (
         <g
             id={asset.id}
@@ -116,9 +103,11 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
             transform={asset.transform}
             ref={assetRef}
             onClick={onClick}
-            onMouseEnter={() => {
+            onMouseEnter={e => {
                 onHover(true);
+                dispathMouseEvent(e);
             }}
+            onMouseMove={dispathMouseEvent}
             onMouseLeave={() => {
                 onHover(false);
             }}
