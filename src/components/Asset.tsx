@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { $, text, css } from "dom7";
-import React, { createElement, CSSProperties, useContext, useEffect, useRef, useState } from "react";
+import React, { createElement, CSSProperties, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FloorPlanContext } from "../context/FloorPlanContext";
 import { StoreContext } from "../store";
 import { AssetObject } from "../util/assets";
@@ -36,7 +36,7 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
             selection.text(asset.title);
         }
         setTitle(true);
-    }, [asset.title, asset.xml, assetRef, textSelector, titleSet]);
+    }, [asset.title, asset.xml, assetRef.current, textSelector, titleSet]);
 
     // STYLING
     useEffect(() => {
@@ -55,7 +55,7 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
         }
 
         setStyle(true);
-    }, [asset, asset.id, asset.shapeStyling, gElementSelector, styleSet, assetRef]);
+    }, [asset, asset.id, asset.shapeStyling, gElementSelector, styleSet, assetRef.current]);
 
     const onClick = (): void => {
         if (elementClick && asset.isClickable && asset.obj) {
@@ -71,22 +71,25 @@ const Asset = ({ asset, overlayElement }: AssetProps): JSX.Element => {
         dispatch({ type: "HOVER", id: state ? asset.obj : null, popup: state && asset.popupEnabled });
     };
 
-    const dispathMouseEvent = (e: React.MouseEvent<SVGGElement, MouseEvent>): void => {
-        const clientRect = (overlayElement as SVGSVGElement).getBoundingClientRect();
-        const { width, height } = clientRect;
-        const posX = clientRect && e.nativeEvent.offsetX >= width / 2 ? "right" : "left";
-        const posY = clientRect && e.nativeEvent.offsetY >= height / 2 ? "bottom" : "top";
+    const dispathMouseEvent = useCallback(
+        (e: React.MouseEvent<SVGGElement, MouseEvent>): void => {
+            const clientRect = (overlayElement as SVGSVGElement).getBoundingClientRect();
+            const { width, height } = clientRect;
+            const posX = clientRect && e.nativeEvent.offsetX >= width / 2 ? "right" : "left";
+            const posY = clientRect && e.nativeEvent.offsetY >= height / 2 ? "bottom" : "top";
 
-        dispatch({
-            type: "COORDS",
-            layerX: e.nativeEvent.offsetX,
-            layerY: e.nativeEvent.offsetY,
-            posX,
-            posY,
-            width,
-            height
-        });
-    };
+            dispatch({
+                type: "COORDS",
+                layerX: e.nativeEvent.offsetX,
+                layerY: e.nativeEvent.offsetY,
+                posX,
+                posY,
+                width,
+                height
+            });
+        },
+        [dispatch, overlayElement]
+    );
 
     return (
         <g
