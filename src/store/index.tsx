@@ -1,8 +1,7 @@
 import { createContext, createElement, Dispatch, useReducer } from "react";
-import { ObjectItem } from "mendix";
 
 export type StoreState = {
-    hoverElement: ObjectItem | null;
+    hoverElement: string | null;
     showPopup: boolean;
     hoverCoords: {
         layerX: number;
@@ -15,7 +14,7 @@ export type StoreState = {
 };
 
 export type StoreAction =
-    | { type: "HOVER"; id: ObjectItem | null; popup: boolean }
+    | { type: "HOVER"; id: string | null; popup: boolean }
     | {
           type: "COORDS";
           layerX: number;

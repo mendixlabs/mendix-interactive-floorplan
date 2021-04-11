@@ -1,4 +1,6 @@
-import { createElement, ReactNode } from "react";
+// import "./wdyr";
+
+import { createElement, ReactNode, useCallback, useMemo } from "react";
 
 import { InteractiveFloorplanContainerProps } from "../typings/InteractiveFloorplanProps";
 import FloorPlan from "./components/FloorPlan";
@@ -9,29 +11,92 @@ import "./ui/InteractiveFloorplan.scss";
 import { getAssetObjects } from "./util/assets";
 
 const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactNode => {
-    const assets = getAssetObjects(
-        {
-            getTitle: props.getAssetID,
-            getXML: props.getAssetXML,
-            getTransform: props.getAssetTransform,
-            getShapeStyling: props.getAssetShapeStyling,
-            getClickable: props.getAssetClickable,
-            getPopupEnabled: props.getAssetShowpopup,
-            getClassName: props.getAssetClassName
-        },
-        !!props.actionClickAsset,
-        props.dataAssets.items
+    const {
+        dataAssets,
+        actionClickAsset,
+        getAssetID,
+        getAssetXML,
+        getAssetClickable,
+        getAssetShowpopup,
+        getAssetTransform,
+        getAssetClassName,
+        getAssetShapeStyling,
+        uiMainSelectorG,
+        uiSelectorGElement,
+        uiSelectorText,
+        popupArea
+    } = props;
+
+    const assets = useMemo(
+        () =>
+            getAssetObjects(
+                {
+                    getTitle: getAssetID,
+                    getXML: getAssetXML,
+                    getTransform: getAssetTransform,
+                    getShapeStyling: getAssetShapeStyling,
+                    getClickable: getAssetClickable,
+                    getPopupEnabled: getAssetShowpopup,
+                    getClassName: getAssetClassName
+                },
+                !!actionClickAsset,
+                props.dataAssets.items
+            ),
+        [
+            actionClickAsset,
+            getAssetClassName,
+            getAssetClickable,
+            getAssetID,
+            getAssetShapeStyling,
+            getAssetShowpopup,
+            getAssetTransform,
+            getAssetXML,
+            props.dataAssets.items
+        ]
     );
+
     const floorPlanSVG = props.textSVG.value;
     const floorPlanViewBox = props.textSVGViewBox.value;
 
-    const contextVariables: ContextVariables = {
-        textSelector: props.uiSelectorText,
-        gElementSelector: props.uiSelectorGElement,
-        mainSelector: props.uiMainSelectorG,
-        elementClick: props.actionClickAsset ? props.actionClickAsset : null,
-        popupArea: props.popupArea ? props.popupArea : null
-    };
+    const onItemClick = useCallback(
+        (id: string): void => {
+            const object = dataAssets.items?.find(obj => obj.id === id);
+            console.log(id, object, dataAssets.items);
+
+            if (object && actionClickAsset) {
+                const action = actionClickAsset(object);
+                if (action && action.canExecute && !action.isExecuting) {
+                    action.execute();
+                }
+            }
+        },
+        [actionClickAsset, dataAssets.items]
+    );
+
+    const getPopupContent = useCallback(
+        (id: string): ReactNode => {
+            if (!id || !popupArea) {
+                return null;
+            }
+            const object = dataAssets.items?.find(obj => obj.id === id);
+            if (object) {
+                return popupArea(object);
+            }
+            return null;
+        },
+        [popupArea, dataAssets.items]
+    );
+
+    const contextVariables: ContextVariables = useMemo(
+        () => ({
+            textSelector: uiSelectorText,
+            gElementSelector: uiSelectorGElement,
+            mainSelector: uiMainSelectorG,
+            onItemClick,
+            getPopupContent
+        }),
+        [uiSelectorText, uiSelectorGElement, uiMainSelectorG, onItemClick, getPopupContent]
+    );
 
     return (
         <StateProvider>

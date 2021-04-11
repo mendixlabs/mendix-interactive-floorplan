@@ -2,7 +2,6 @@ import { ObjectItem, DynamicValue } from "mendix";
 
 export interface AssetObject {
     id: string;
-    obj: ObjectItem;
     title: string;
     xml: string;
     transform: string;
@@ -41,7 +40,6 @@ export const getAssetObjects = (
 
         return {
             id,
-            obj,
             title,
             xml,
             transform,

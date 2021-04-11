@@ -8,13 +8,10 @@ const tooltipOffset = {
     y: -40
 };
 
-// type PositionX = "left" | "right";
-// type PositionY = "top" | "bottom";
-
 const Popup = (): JSX.Element => {
-    const { popupArea } = useContext(FloorPlanContext);
+    const { getPopupContent } = useContext(FloorPlanContext);
     const { state } = useContext(StoreContext);
-    const { hoverCoords, svgSizes } = state;
+    const { hoverCoords, svgSizes, hoverElement } = state;
 
     const posX = hoverCoords.layerX >= svgSizes.width / 2 ? "right" : "left";
     const posY = hoverCoords.layerY >= svgSizes.height / 2 ? "bottom" : "top";
@@ -36,11 +33,11 @@ const Popup = (): JSX.Element => {
         return style;
     }, [posX, posY, hoverCoords.layerX, hoverCoords.layerY, svgSizes.width, svgSizes.height]);
 
-    if (popupArea !== null && state.showPopup && state.hoverElement !== null && hoverCoords) {
-        const popup = popupArea(state.hoverElement);
+    if (state.showPopup && hoverElement !== null && hoverCoords) {
+        const popup = getPopupContent(hoverElement);
 
         return (
-            <div style={style} className={classNames("tooltip", posX, posY)}>
+            <div style={style} className={classNames("tooltip", "interactive-floorplan--tooltip", posX, posY)}>
                 <div className={classNames("inner")}>{popup}</div>
             </div>
         );

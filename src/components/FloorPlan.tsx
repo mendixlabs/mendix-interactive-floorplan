@@ -16,7 +16,7 @@ export interface FloorPlanProps {
 }
 
 const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Element => {
-    const { state, dispatch } = useContext(StoreContext);
+    const { dispatch } = useContext(StoreContext);
 
     const overlayRef = useRef<SVGSVGElement | null>(null);
 
@@ -33,17 +33,15 @@ const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Ele
         () => (
             <Fragment>
                 {assets.map(asset => (
-                    <Asset key={asset.id} asset={asset} />
+                    <Asset key={asset.id} {...asset} />
                 ))}
             </Fragment>
         ),
         [assets]
     );
 
-    return (
-        <div
-            className={classNames("interactive-floorplan", className, { "hover-element": state.hoverElement !== null })}
-        >
+    const Main = useMemo(
+        () => (
             <MapInteraction maxScale={6} minScale={0.6}>
                 {({ translation, scale }) => (
                     <div>
@@ -60,6 +58,13 @@ const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Ele
                     </div>
                 )}
             </MapInteraction>
+        ),
+        [AssetList, svg, viewBox]
+    );
+
+    return (
+        <div className={classNames("interactive-floorplan", className)}>
+            {Main}
             <Popup />
         </div>
     );
