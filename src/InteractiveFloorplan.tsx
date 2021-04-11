@@ -61,7 +61,6 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
     const onItemClick = useCallback(
         (id: string): void => {
             const object = dataAssets.items?.find(obj => obj.id === id);
-            console.log(id, object, dataAssets.items);
 
             if (object && actionClickAsset) {
                 const action = actionClickAsset(object);
