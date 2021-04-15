@@ -1,4 +1,4 @@
-// import "./wdyr";
+import "./wdyr";
 
 import { createElement, ReactNode, useCallback, useMemo } from "react";
 
@@ -17,14 +17,16 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
         getAssetID,
         getAssetXML,
         getAssetClickable,
-        getAssetShowpopup,
+        getAssetShowHoverPopup,
+        getAssetShowClickPopup,
         getAssetTransform,
         getAssetClassName,
         getAssetShapeStyling,
         uiMainSelectorG,
         uiSelectorGElement,
         uiSelectorText,
-        popupArea
+        popupHoverArea,
+        popupClickArea
     } = props;
 
     const assets = useMemo(
@@ -36,19 +38,22 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
                     getTransform: getAssetTransform,
                     getShapeStyling: getAssetShapeStyling,
                     getClickable: getAssetClickable,
-                    getPopupEnabled: getAssetShowpopup,
+                    getHoverPopupEnabled: getAssetShowHoverPopup,
+                    getClickPopupEnabled: getAssetShowClickPopup,
                     getClassName: getAssetClassName
                 },
-                !!actionClickAsset,
+                !!actionClickAsset || !!popupClickArea,
                 props.dataAssets.items
             ),
         [
             actionClickAsset,
+            popupClickArea,
             getAssetClassName,
             getAssetClickable,
             getAssetID,
             getAssetShapeStyling,
-            getAssetShowpopup,
+            getAssetShowHoverPopup,
+            getAssetShowClickPopup,
             getAssetTransform,
             getAssetXML,
             props.dataAssets.items
@@ -72,18 +77,32 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
         [actionClickAsset, dataAssets.items]
     );
 
-    const getPopupContent = useCallback(
+    const getHoverPopupContent = useCallback(
         (id: string): ReactNode => {
-            if (!id || !popupArea) {
+            if (!id || !popupHoverArea) {
                 return null;
             }
             const object = dataAssets.items?.find(obj => obj.id === id);
             if (object) {
-                return popupArea(object);
+                return popupHoverArea(object);
             }
             return null;
         },
-        [popupArea, dataAssets.items]
+        [popupHoverArea, dataAssets.items]
+    );
+
+    const getClickPopupContent = useCallback(
+        (id: string): ReactNode => {
+            if (!id || !popupClickArea) {
+                return null;
+            }
+            const object = dataAssets.items?.find(obj => obj.id === id);
+            if (object) {
+                return popupClickArea(object);
+            }
+            return null;
+        },
+        [popupClickArea, dataAssets.items]
     );
 
     const contextVariables: ContextVariables = useMemo(
@@ -92,9 +111,10 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
             gElementSelector: uiSelectorGElement,
             mainSelector: uiMainSelectorG,
             onItemClick,
-            getPopupContent
+            getHoverPopupContent,
+            getClickPopupContent
         }),
-        [uiSelectorText, uiSelectorGElement, uiMainSelectorG, onItemClick, getPopupContent]
+        [uiSelectorText, uiSelectorGElement, uiMainSelectorG, onItemClick, getHoverPopupContent, getClickPopupContent]
     );
 
     return (

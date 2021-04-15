@@ -9,7 +9,8 @@ export interface ContextVariables {
     gElementSelector: string | null;
     mainSelector: string;
     onItemClick: (id: string) => void;
-    getPopupContent: (id: string) => ReactNode;
+    getHoverPopupContent: (id: string) => ReactNode;
+    getClickPopupContent: (id: string) => ReactNode;
 }
 
 export const FloorPlanContext = createContext<ContextVariables>({
@@ -17,5 +18,6 @@ export const FloorPlanContext = createContext<ContextVariables>({
     gElementSelector: null,
     mainSelector: "",
     onItemClick: (_id: string) => {},
-    getPopupContent: (_id: string) => null
+    getHoverPopupContent: (_id: string) => null,
+    getClickPopupContent: (_id: string) => null
 });

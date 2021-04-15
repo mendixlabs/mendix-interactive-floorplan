@@ -1,11 +1,22 @@
 import classNames from "classnames";
-import { $, text, css } from "dom7";
-import React, { createElement, CSSProperties, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { $, text, css, parents, is } from "dom7";
+import React, {
+    createElement,
+    CSSProperties,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState
+} from "react";
 import { FloorPlanContext } from "../context/FloorPlanContext";
 import { StoreContext } from "../store";
 
 $.fn.text = text;
 $.fn.css = css;
+$.fn.is = is;
+$.fn.parents = parents;
 
 export interface AssetProps {
     id: string;
@@ -13,7 +24,8 @@ export interface AssetProps {
     xml: string;
     transform: string;
     shapeStyling: string;
-    popupEnabled: boolean;
+    hoverPopupEnabled: boolean;
+    clickPopupEnabled: boolean;
     isClickable: boolean;
     className: string;
 }
@@ -24,7 +36,8 @@ const Asset = ({
     xml,
     transform,
     shapeStyling,
-    popupEnabled,
+    hoverPopupEnabled,
+    clickPopupEnabled,
     isClickable,
     className
 }: AssetProps): JSX.Element => {
@@ -38,7 +51,10 @@ const Asset = ({
     const [hover, setHover] = useState(false);
 
     // In order to avoid flickering rendering issues, we set visible to hidden and only show if we have done initial style/title setup
-    const style: CSSProperties = titleSet && styleSet ? {} : { visibility: "hidden" };
+    const style: CSSProperties = useMemo(() => (titleSet && styleSet ? {} : { visibility: "hidden" }), [
+        titleSet,
+        styleSet
+    ]);
 
     // TITLE
     useEffect(() => {
@@ -75,27 +91,49 @@ const Asset = ({
         }
     }, [id, shapeStyling, gElementSelector, styleSet]);
 
-    const onClick = useCallback((): void => {
-        if (onItemClick && isClickable) {
-            onItemClick(id);
-        }
-    }, [isClickable, id, onItemClick]);
+    const onClick = useCallback(
+        (e: React.MouseEvent<SVGGElement, MouseEvent>): void => {
+            if (isClickable) {
+                if (clickPopupEnabled) {
+                    const currentRect = e.currentTarget.getBoundingClientRect();
+                    const parentContainer = $(e.currentTarget).parents(".interactive-floorplan")[0];
+                    const parentRect = parentContainer.getBoundingClientRect();
+                    const top = Math.round(currentRect.top - parentRect.top + currentRect.height / 2);
+                    const left = Math.round(currentRect.left - parentRect.left + currentRect.width / 2);
+                    dispatch({ type: "COORDS", x: left, y: top });
+                    dispatch({ type: "CLICKED", id, popup: true });
+                }
+
+                if (onItemClick) {
+                    onItemClick(id);
+                }
+            }
+        },
+        [isClickable, id, onItemClick, clickPopupEnabled]
+    );
 
     const onHover = useCallback(
         (state: boolean): void => {
-            setHover(state);
-            dispatch({ type: "HOVER", id: state ? id : null, popup: state && popupEnabled });
+            if (hoverPopupEnabled) {
+                setHover(state);
+                dispatch({ type: "HOVER", id: state ? id : null, popup: state && hoverPopupEnabled });
+            }
         },
-        [dispatch, id, popupEnabled]
+        [id, hoverPopupEnabled]
     );
 
-    const dispathMouseEvent = useCallback((e: React.MouseEvent<SVGGElement, MouseEvent>): void => {
-        dispatch({
-            type: "COORDS",
-            layerX: e.nativeEvent.offsetX,
-            layerY: e.nativeEvent.offsetY
-        });
-    }, []);
+    const dispathMouseEvent = useCallback(
+        (e: React.MouseEvent<SVGGElement, MouseEvent>): void => {
+            if (hoverPopupEnabled) {
+                dispatch({
+                    type: "COORDS",
+                    x: e.nativeEvent.offsetX,
+                    y: e.nativeEvent.offsetY
+                });
+            }
+        },
+        [hoverPopupEnabled]
+    );
 
     return (
         <g
@@ -121,6 +159,6 @@ const Asset = ({
     );
 };
 
-// Asset.whyDidYouRender = true;
+Asset.whyDidYouRender = true;
 
 export default Asset;

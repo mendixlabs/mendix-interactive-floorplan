@@ -19,8 +19,10 @@ export interface InteractiveFloorplanContainerProps {
     getAssetTransform: ListExpressionValue<string>;
     getAssetClassName?: ListExpressionValue<string>;
     getAssetClickable: ListExpressionValue<boolean>;
-    getAssetShowpopup: ListExpressionValue<boolean>;
-    popupArea?: ListWidgetValue;
+    getAssetShowHoverPopup: ListExpressionValue<boolean>;
+    getAssetShowClickPopup: ListExpressionValue<boolean>;
+    popupHoverArea?: ListWidgetValue;
+    popupClickArea?: ListWidgetValue;
     actionClickAsset?: ListActionValue;
     uiSelectorText: string;
     uiSelectorGElement: string;
@@ -39,8 +41,10 @@ export interface InteractiveFloorplanPreviewProps {
     getAssetTransform: string;
     getAssetClassName: string;
     getAssetClickable: string;
-    getAssetShowpopup: string;
-    popupArea: { widgetCount: number; renderer: ComponentType };
+    getAssetShowHoverPopup: string;
+    getAssetShowClickPopup: string;
+    popupHoverArea: { widgetCount: number; renderer: ComponentType };
+    popupClickArea: { widgetCount: number; renderer: ComponentType };
     actionClickAsset: {} | null;
     uiSelectorText: string;
     uiSelectorGElement: string;

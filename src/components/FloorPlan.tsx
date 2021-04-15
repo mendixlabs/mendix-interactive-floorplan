@@ -1,12 +1,12 @@
 import classNames from "classnames";
-import { createElement, Fragment, useContext, useEffect, useMemo, useRef } from "react";
+import { createElement, Fragment, useContext, useMemo, useRef, useEffect } from "react";
 import { AssetObject } from "../util/assets";
-// import { select, event, zoom } from "d3";
-import Asset from "./Asset";
-import { StoreContext } from "../store";
-import Popup from "./Popup";
+import { HoverPopup } from "./Popup";
 import { MapInteraction } from "react-map-interaction";
 import Background from "./Background";
+import { useSize, useThrottleEffect } from "ahooks";
+import { StoreContext } from "../store";
+import Asset from "./Asset";
 
 export interface FloorPlanProps {
     assets: AssetObject[];
@@ -16,18 +16,39 @@ export interface FloorPlanProps {
 }
 
 const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Element => {
-    const { dispatch } = useContext(StoreContext);
+    const { dispatch, state } = useContext(StoreContext);
+    const planRef = useRef<HTMLDivElement>(null);
 
-    const overlayRef = useRef<SVGSVGElement | null>(null);
+    const size = useSize(planRef);
+
+    useThrottleEffect(
+        () => {
+            if (size.width !== undefined && size.height !== undefined) {
+                dispatch({ type: "SETSIZE", width: size.width, height: size.height });
+            }
+        },
+        [size],
+        {
+            wait: 1000,
+            leading: false
+        }
+    );
 
     useEffect(() => {
-        if (overlayRef.current) {
-            const box = overlayRef.current.getBoundingClientRect();
-            if (box) {
-                dispatch({ type: "SETSIZE", width: box.width, height: box.height });
-            }
+        if (!(window as any)["com.mendix.InteractiveFloorplan.closePopup"]) {
+            (window as any).com = (window as any).com || {};
+            (window as any).com.mendix = (window as any).com.mendix || {};
+            (window as any).com.mendix.InteractiveFloorplan = (window as any).com.mendix.InteractiveFloorplan || {};
+            (window as any).com.mendix.InteractiveFloorplan.closePopup = () => {
+                dispatch({ type: "CLICKED", id: null, popup: false });
+            };
         }
-    }, [dispatch]);
+
+        return () => {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            (window as any).com.mendix.InteractiveFloorplan.closePopup = () => {};
+        };
+    }, []);
 
     const AssetList = useMemo(
         () => (
@@ -46,11 +67,7 @@ const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Ele
                 {({ translation, scale }) => (
                     <div>
                         <Background svg={svg} x={translation.x} y={translation.y} scale={scale} />
-                        <svg
-                            className={classNames("interactive-floorplan--overlay")}
-                            ref={overlayRef}
-                            viewBox={viewBox}
-                        >
+                        <svg className={classNames("interactive-floorplan--overlay")} viewBox={viewBox}>
                             <g transform={`translate(${translation.x},${translation.y}) scale(${scale})`}>
                                 {AssetList}
                             </g>
@@ -63,11 +80,16 @@ const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Ele
     );
 
     return (
-        <div className={classNames("interactive-floorplan", className)}>
+        <div
+            className={classNames("interactive-floorplan", className, { "interaction-disabled": state.showClickPopup })}
+            ref={planRef}
+        >
             {Main}
-            <Popup />
+            <HoverPopup />
         </div>
     );
 };
+
+FloorPlan.whyDidYouRender = true;
 
 export default FloorPlan;

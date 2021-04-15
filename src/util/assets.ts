@@ -1,4 +1,5 @@
-import { ObjectItem, DynamicValue } from "mendix";
+import { ObjectItem, DynamicValue, ListWidgetValue } from "mendix";
+import { ReactNode } from "react";
 
 export interface AssetObject {
     id: string;
@@ -6,7 +7,8 @@ export interface AssetObject {
     xml: string;
     transform: string;
     shapeStyling: string;
-    popupEnabled: boolean;
+    hoverPopupEnabled: boolean;
+    clickPopupEnabled: boolean;
     isClickable: boolean;
     className: string;
 }
@@ -17,14 +19,24 @@ export const getAssetObjects = (
         getXML: (obj: ObjectItem) => DynamicValue<string>;
         getTransform: (obj: ObjectItem) => DynamicValue<string>;
         getClickable: (obj: ObjectItem) => DynamicValue<boolean>;
-        getPopupEnabled: (obj: ObjectItem) => DynamicValue<boolean>;
+        getHoverPopupEnabled: (obj: ObjectItem) => DynamicValue<boolean>;
+        getClickPopupEnabled: (obj: ObjectItem) => DynamicValue<boolean>;
         getShapeStyling?: (obj: ObjectItem) => DynamicValue<string>;
         getClassName?: (obj: ObjectItem) => DynamicValue<string>;
     },
     clickActionDefined: boolean,
     items?: ObjectItem[]
 ): AssetObject[] => {
-    const { getTitle, getXML, getTransform, getClickable, getPopupEnabled, getShapeStyling, getClassName } = funcs;
+    const {
+        getTitle,
+        getXML,
+        getTransform,
+        getClickable,
+        getHoverPopupEnabled,
+        getClickPopupEnabled,
+        getShapeStyling,
+        getClassName
+    } = funcs;
     if (!items) {
         return [];
     }
@@ -34,7 +46,8 @@ export const getAssetObjects = (
         const xml = getXML(obj).value;
         const transform = getTransform(obj).value;
         const isClickable = clickActionDefined && getClickable(obj).value;
-        const popupEnabled = getPopupEnabled(obj).value;
+        const hoverPopupEnabled = getHoverPopupEnabled(obj).value;
+        const clickPopupEnabled = getClickPopupEnabled(obj).value;
         const shapeStyling = getShapeStyling ? getShapeStyling(obj).value : "";
         const className = getClassName ? getClassName(obj).value : "";
 
@@ -45,7 +58,8 @@ export const getAssetObjects = (
             transform,
             shapeStyling,
             isClickable,
-            popupEnabled,
+            hoverPopupEnabled,
+            clickPopupEnabled,
             className
         } as AssetObject;
     });
@@ -62,4 +76,17 @@ export const getAssetObjects = (
         return [];
     }
     return assetObjects;
+};
+
+export const getPopupArea = (items: ObjectItem[] = [], popupArea?: ListWidgetValue): ((id: string) => ReactNode) => {
+    return (id: string): ReactNode => {
+        if (!id || !popupArea) {
+            return null;
+        }
+        const object = items.find(obj => obj.id === id);
+        if (object) {
+            return popupArea(object);
+        }
+        return null;
+    };
 };

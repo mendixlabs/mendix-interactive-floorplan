@@ -1,11 +1,12 @@
 import { createContext, createElement, Dispatch, useReducer } from "react";
 
 export type StoreState = {
-    hoverElement: string | null;
-    showPopup: boolean;
-    hoverCoords: {
-        layerX: number;
-        layerY: number;
+    selectedItem: string | null;
+    showHoverPopup: boolean;
+    showClickPopup: boolean;
+    popupCoords: {
+        x: number;
+        y: number;
     };
     svgSizes: {
         width: number;
@@ -15,19 +16,21 @@ export type StoreState = {
 
 export type StoreAction =
     | { type: "HOVER"; id: string | null; popup: boolean }
+    | { type: "CLICKED"; id: string | null; popup: boolean }
     | {
           type: "COORDS";
-          layerX: number;
-          layerY: number;
+          x: number;
+          y: number;
       }
     | { type: "SETSIZE"; width: number; height: number };
 
 const initialState: StoreState = {
-    hoverElement: null,
-    showPopup: false,
-    hoverCoords: {
-        layerX: 0,
-        layerY: 0
+    selectedItem: null,
+    showHoverPopup: false,
+    showClickPopup: false,
+    popupCoords: {
+        x: 0,
+        y: 0
     },
     svgSizes: {
         width: 1,
@@ -47,16 +50,22 @@ const mainReducer = (state: StoreState, action: StoreAction): StoreState => {
     if (action.type === "HOVER") {
         return {
             ...state,
-            hoverElement: action.id,
-            showPopup: action.popup
+            selectedItem: action.id,
+            showHoverPopup: action.popup
         };
     } else if (action.type === "COORDS") {
         return {
             ...state,
-            hoverCoords: {
-                layerX: action.layerX,
-                layerY: action.layerY
+            popupCoords: {
+                x: action.x,
+                y: action.y
             }
+        };
+    } else if (action.type === "CLICKED") {
+        return {
+            ...state,
+            selectedItem: action.id,
+            showClickPopup: action.popup
         };
     } else if (action.type === "SETSIZE") {
         return {

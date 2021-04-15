@@ -56,16 +56,25 @@
                     <description>Should the asset be clickable?</description>
                     <returnType type="Boolean" />
                 </property>
-                <property key="getAssetShowpopup" type="expression" required="true" defaultValue="" dataSource="dataAssets">
-                    <caption>Popup</caption>
-                    <description>Should the asset have a popup? This uses the popup area of the widget.</description>
+                <property key="getAssetShowHoverPopup" type="expression" required="true" defaultValue="false" dataSource="dataAssets">
+                    <caption>Hover Popup</caption>
+                    <description>Should the asset have a hover popup? This uses the 'Popup Hover Area' of the widget.</description>
+                    <returnType type="Boolean" />
+                </property>
+                <property key="getAssetShowClickPopup" type="expression" required="true" defaultValue="false" dataSource="dataAssets">
+                    <caption>Click Popup</caption>
+                    <description>Should the asset have a click popup? This uses the 'Popup Click Area' of the widget.</description>
                     <returnType type="Boolean" />
                 </property>
             </propertyGroup>
             <propertyGroup caption="Areas">
-                <property key="popupArea" type="widgets" required="false" dataSource="dataAssets">
-                    <caption>Popup Area</caption>
+                <property key="popupHoverArea" type="widgets" required="false" dataSource="dataAssets">
+                    <caption>Popup Hover Area</caption>
                     <description>Show a popup when hovering over the element</description>
+                </property>
+                <property key="popupClickArea" type="widgets" required="false" dataSource="dataAssets">
+                    <caption>Popup Click Area</caption>
+                    <description>Show a popup when click on the element</description>
                 </property>
             </propertyGroup>
         </propertyGroup>

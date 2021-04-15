@@ -1,5 +1,6 @@
+import { createElement, CSSProperties, useContext, useMemo, useRef } from "react";
+import { useKeyPress, useClickAway, useDebounce } from "ahooks";
 import classNames from "classnames";
-import { createElement, CSSProperties, useContext, useMemo } from "react";
 import { FloorPlanContext } from "../context/FloorPlanContext";
 import { StoreContext } from "../store";
 
@@ -8,42 +9,96 @@ const tooltipOffset = {
     y: -40
 };
 
-const Popup = (): JSX.Element => {
-    const { getPopupContent } = useContext(FloorPlanContext);
-    const { state } = useContext(StoreContext);
-    const { hoverCoords, svgSizes, hoverElement } = state;
+const getPositionStyle = (
+    svgSizes: { width: number; height: number },
+    coords: { x: number; y: number }
+): { positionX: "right" | "left"; positionY: "top" | "bottom"; style: CSSProperties } => {
+    const positionX = coords.x >= svgSizes.width / 2 ? "right" : "left";
+    const positionY = coords.y >= svgSizes.height / 2 ? "bottom" : "top";
 
-    const posX = hoverCoords.layerX >= svgSizes.width / 2 ? "right" : "left";
-    const posY = hoverCoords.layerY >= svgSizes.height / 2 ? "bottom" : "top";
+    const style: CSSProperties = {};
 
-    const style = useMemo(() => {
-        const style: CSSProperties = {};
-
-        if (posX === "left") {
-            style.left = hoverCoords.layerX + tooltipOffset.x;
-        } else {
-            style.right = svgSizes.width - hoverCoords.layerX + tooltipOffset.x;
-        }
-
-        if (posY === "top") {
-            style.top = hoverCoords.layerY + tooltipOffset.y;
-        } else {
-            style.bottom = svgSizes.height - hoverCoords.layerY + tooltipOffset.y;
-        }
-        return style;
-    }, [posX, posY, hoverCoords.layerX, hoverCoords.layerY, svgSizes.width, svgSizes.height]);
-
-    if (state.showPopup && hoverElement !== null && hoverCoords) {
-        const popup = getPopupContent(hoverElement);
-
-        return (
-            <div style={style} className={classNames("tooltip", "interactive-floorplan--tooltip", posX, posY)}>
-                <div className={classNames("inner")}>{popup}</div>
-            </div>
-        );
+    if (positionX === "left") {
+        style.left = coords.x + tooltipOffset.x;
+    } else {
+        style.right = svgSizes.width - coords.x + tooltipOffset.x;
     }
 
-    return <div className={classNames("tooltip", "hide")} />;
+    if (positionY === "top") {
+        style.top = coords.y + tooltipOffset.y;
+    } else {
+        style.bottom = svgSizes.height - coords.y + tooltipOffset.y;
+    }
+
+    return {
+        positionX,
+        positionY,
+        style
+    };
 };
 
-export default Popup;
+export const HoverPopup = (): JSX.Element => {
+    const { getHoverPopupContent, getClickPopupContent } = useContext(FloorPlanContext);
+    const ref = useRef<HTMLDivElement>(null);
+    const { state, dispatch } = useContext(StoreContext);
+    const { popupCoords: hover, svgSizes, selectedItem, showHoverPopup, showClickPopup } = state;
+    const showPopup = selectedItem !== null && !!hover;
+
+    const shown = useDebounce(showPopup, { wait: 500 });
+
+    const closePopup = (): void => {
+        dispatch({ type: "CLICKED", id: null, popup: false });
+    };
+
+    useKeyPress("esc", () => {
+        closePopup();
+    });
+
+    useClickAway(() => {
+        if (showClickPopup && showPopup && shown) {
+            closePopup();
+        }
+    }, ref);
+
+    const popup =
+        selectedItem !== null
+            ? showHoverPopup
+                ? getHoverPopupContent(selectedItem)
+                : showClickPopup
+                ? getClickPopupContent(selectedItem)
+                : null
+            : null;
+    const positionStyle = useMemo(() => getPositionStyle(svgSizes, hover), [svgSizes, hover]);
+    const { style, positionX, positionY } = positionStyle;
+    const closeButton = useMemo(
+        () => (
+            <button
+                type="button"
+                className={classNames("close")}
+                data-dismiss="modal"
+                aria-label="Close"
+                onClick={closePopup}
+            >
+                <span aria-hidden="true">×</span>
+            </button>
+        ),
+        []
+    );
+
+    return (
+        <div
+            className={classNames(
+                "tooltip",
+                "interactive-floorplan--tooltip",
+                { hide: !showPopup },
+                positionX,
+                positionY
+            )}
+            style={showPopup ? style : {}}
+            ref={ref}
+        >
+            <div className={classNames("inner")}>{popup}</div>
+            {showClickPopup ? closeButton : null}
+        </div>
+    );
+};
