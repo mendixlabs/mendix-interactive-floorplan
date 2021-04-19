@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { createElement, Fragment, useContext, useMemo, useRef, useEffect } from "react";
 import { AssetObject } from "../util/assets";
-import { HoverPopup } from "./Popup";
+import { ClickPopup, HoverPopup } from "./Popup";
 import { MapInteraction } from "react-map-interaction";
 import Background from "./Background";
 import { useSize, useThrottleEffect } from "ahooks";
@@ -86,10 +86,11 @@ const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Ele
         >
             {Main}
             <HoverPopup />
+            <ClickPopup />
         </div>
     );
 };
 
-FloorPlan.whyDidYouRender = true;
+// FloorPlan.whyDidYouRender = true;
 
 export default FloorPlan;

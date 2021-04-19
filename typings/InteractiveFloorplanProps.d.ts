@@ -21,6 +21,7 @@ export interface InteractiveFloorplanContainerProps {
     getAssetClickable: ListExpressionValue<boolean>;
     getAssetShowHoverPopup: ListExpressionValue<boolean>;
     getAssetShowClickPopup: ListExpressionValue<boolean>;
+    showPageOverlayOnClickPopup: boolean;
     popupHoverArea?: ListWidgetValue;
     popupClickArea?: ListWidgetValue;
     actionClickAsset?: ListActionValue;
@@ -43,6 +44,7 @@ export interface InteractiveFloorplanPreviewProps {
     getAssetClickable: string;
     getAssetShowHoverPopup: string;
     getAssetShowClickPopup: string;
+    showPageOverlayOnClickPopup: boolean;
     popupHoverArea: { widgetCount: number; renderer: ComponentType };
     popupClickArea: { widgetCount: number; renderer: ComponentType };
     actionClickAsset: {} | null;

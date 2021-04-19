@@ -66,6 +66,10 @@
                     <description>Should the asset have a click popup? This uses the 'Popup Click Area' of the widget.</description>
                     <returnType type="Boolean" />
                 </property>
+                <property key="showPageOverlayOnClickPopup" type="boolean" defaultValue="true">
+                    <caption>Page overlay (click)</caption>
+                    <description>Show a complete page overlay (making interactions on whole page impossible) when showing a Click Popup</description>
+                </property>
             </propertyGroup>
             <propertyGroup caption="Areas">
                 <property key="popupHoverArea" type="widgets" required="false" dataSource="dataAssets">

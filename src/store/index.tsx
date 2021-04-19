@@ -1,10 +1,15 @@
 import { createContext, createElement, Dispatch, useReducer } from "react";
 
 export type StoreState = {
-    selectedItem: string | null;
+    selectedHoverItem: string | null;
+    selectedClickItem: string | null;
     showHoverPopup: boolean;
     showClickPopup: boolean;
-    popupCoords: {
+    hoverCoords: {
+        x: number;
+        y: number;
+    };
+    clickCoords: {
         x: number;
         y: number;
     };
@@ -18,17 +23,27 @@ export type StoreAction =
     | { type: "HOVER"; id: string | null; popup: boolean }
     | { type: "CLICKED"; id: string | null; popup: boolean }
     | {
-          type: "COORDS";
+          type: "HOVERCOORDS";
+          x: number;
+          y: number;
+      }
+    | {
+          type: "CLICKCOORDS";
           x: number;
           y: number;
       }
     | { type: "SETSIZE"; width: number; height: number };
 
 const initialState: StoreState = {
-    selectedItem: null,
+    selectedClickItem: null,
+    selectedHoverItem: null,
     showHoverPopup: false,
     showClickPopup: false,
-    popupCoords: {
+    hoverCoords: {
+        x: 0,
+        y: 0
+    },
+    clickCoords: {
         x: 0,
         y: 0
     },
@@ -50,13 +65,21 @@ const mainReducer = (state: StoreState, action: StoreAction): StoreState => {
     if (action.type === "HOVER") {
         return {
             ...state,
-            selectedItem: action.id,
+            selectedHoverItem: action.id,
             showHoverPopup: action.popup
         };
-    } else if (action.type === "COORDS") {
+    } else if (action.type === "HOVERCOORDS") {
         return {
             ...state,
-            popupCoords: {
+            hoverCoords: {
+                x: action.x,
+                y: action.y
+            }
+        };
+    } else if (action.type === "CLICKCOORDS") {
+        return {
+            ...state,
+            clickCoords: {
                 x: action.x,
                 y: action.y
             }
@@ -64,7 +87,7 @@ const mainReducer = (state: StoreState, action: StoreAction): StoreState => {
     } else if (action.type === "CLICKED") {
         return {
             ...state,
-            selectedItem: action.id,
+            selectedClickItem: action.id,
             showClickPopup: action.popup
         };
     } else if (action.type === "SETSIZE") {

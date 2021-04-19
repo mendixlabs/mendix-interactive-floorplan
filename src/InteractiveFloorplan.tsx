@@ -1,4 +1,4 @@
-import "./wdyr";
+// import "./wdyr";
 
 import { createElement, ReactNode, useCallback, useMemo } from "react";
 
@@ -22,6 +22,7 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
         getAssetTransform,
         getAssetClassName,
         getAssetShapeStyling,
+        showPageOverlayOnClickPopup,
         uiMainSelectorG,
         uiSelectorGElement,
         uiSelectorText,
@@ -110,11 +111,20 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
             textSelector: uiSelectorText,
             gElementSelector: uiSelectorGElement,
             mainSelector: uiMainSelectorG,
+            showPageOverlayOnClickPopup,
             onItemClick,
             getHoverPopupContent,
             getClickPopupContent
         }),
-        [uiSelectorText, uiSelectorGElement, uiMainSelectorG, onItemClick, getHoverPopupContent, getClickPopupContent]
+        [
+            uiSelectorText,
+            uiSelectorGElement,
+            uiMainSelectorG,
+            showPageOverlayOnClickPopup,
+            onItemClick,
+            getHoverPopupContent,
+            getClickPopupContent
+        ]
     );
 
     return (

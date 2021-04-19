@@ -1,4 +1,4 @@
-import { createElement, CSSProperties, useContext, useMemo, useRef } from "react";
+import { createElement, CSSProperties, Fragment, useContext, useMemo, useRef } from "react";
 import { useKeyPress, useClickAway, useDebounce } from "ahooks";
 import classNames from "classnames";
 import { FloorPlanContext } from "../context/FloorPlanContext";
@@ -38,11 +38,49 @@ const getPositionStyle = (
 };
 
 export const HoverPopup = (): JSX.Element => {
-    const { getHoverPopupContent, getClickPopupContent } = useContext(FloorPlanContext);
+    const { getHoverPopupContent } = useContext(FloorPlanContext);
+    const { state } = useContext(StoreContext);
+    const { hoverCoords, svgSizes, selectedHoverItem, showHoverPopup } = state;
+    const { style, positionX, positionY } = useMemo(() => getPositionStyle(svgSizes, hoverCoords), [
+        svgSizes,
+        hoverCoords
+    ]);
+    const showPopup = selectedHoverItem !== null && !!hoverCoords && showHoverPopup;
+
+    if (!showPopup) {
+        return <Fragment />;
+    }
+
+    const popup = selectedHoverItem !== null && showHoverPopup ? getHoverPopupContent(selectedHoverItem) : null;
+    const popupType = selectedHoverItem !== null && showHoverPopup ? "hover" : null;
+
+    return (
+        <Fragment>
+            <div
+                className={classNames(
+                    "tooltip",
+                    "interactive-floorplan--tooltip",
+                    {
+                        hide: !showPopup,
+                        "type--hover": popupType === "hover"
+                    },
+                    positionX,
+                    positionY
+                )}
+                style={showPopup ? style : {}}
+            >
+                <div className={classNames("inner")}>{popup}</div>
+            </div>
+        </Fragment>
+    );
+};
+
+export const ClickPopup = (): JSX.Element => {
+    const { getClickPopupContent, showPageOverlayOnClickPopup } = useContext(FloorPlanContext);
     const ref = useRef<HTMLDivElement>(null);
     const { state, dispatch } = useContext(StoreContext);
-    const { popupCoords: hover, svgSizes, selectedItem, showHoverPopup, showClickPopup } = state;
-    const showPopup = selectedItem !== null && !!hover;
+    const { clickCoords, svgSizes, selectedClickItem: selectedItem, showClickPopup } = state;
+    const showPopup = selectedItem !== null && !!clickCoords;
 
     const shown = useDebounce(showPopup, { wait: 500 });
 
@@ -60,16 +98,12 @@ export const HoverPopup = (): JSX.Element => {
         }
     }, ref);
 
-    const popup =
-        selectedItem !== null
-            ? showHoverPopup
-                ? getHoverPopupContent(selectedItem)
-                : showClickPopup
-                ? getClickPopupContent(selectedItem)
-                : null
-            : null;
-    const positionStyle = useMemo(() => getPositionStyle(svgSizes, hover), [svgSizes, hover]);
-    const { style, positionX, positionY } = positionStyle;
+    const popup = selectedItem !== null && showClickPopup ? getClickPopupContent(selectedItem) : null;
+    const popupType = selectedItem !== null && showClickPopup ? "click" : null;
+    const { style, positionX, positionY } = useMemo(() => getPositionStyle(svgSizes, clickCoords), [
+        svgSizes,
+        clickCoords
+    ]);
     const closeButton = useMemo(
         () => (
             <button
@@ -86,19 +120,27 @@ export const HoverPopup = (): JSX.Element => {
     );
 
     return (
-        <div
-            className={classNames(
-                "tooltip",
-                "interactive-floorplan--tooltip",
-                { hide: !showPopup },
-                positionX,
-                positionY
-            )}
-            style={showPopup ? style : {}}
-            ref={ref}
-        >
-            <div className={classNames("inner")}>{popup}</div>
-            {showClickPopup ? closeButton : null}
-        </div>
+        <Fragment>
+            {showPopup && popupType === "click" && showPageOverlayOnClickPopup ? (
+                <div className={classNames("interactive-floorplan--pageoverlay")} />
+            ) : null}
+            <div
+                className={classNames(
+                    "tooltip",
+                    "interactive-floorplan--tooltip",
+                    {
+                        hide: !showPopup,
+                        "type--click": popupType !== null
+                    },
+                    positionX,
+                    positionY
+                )}
+                style={showPopup ? style : {}}
+                ref={ref}
+            >
+                <div className={classNames("inner")}>{popup}</div>
+                {showClickPopup ? closeButton : null}
+            </div>
+        </Fragment>
     );
 };

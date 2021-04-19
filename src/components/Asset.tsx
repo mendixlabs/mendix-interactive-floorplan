@@ -100,7 +100,7 @@ const Asset = ({
                     const parentRect = parentContainer.getBoundingClientRect();
                     const top = Math.round(currentRect.top - parentRect.top + currentRect.height / 2);
                     const left = Math.round(currentRect.left - parentRect.left + currentRect.width / 2);
-                    dispatch({ type: "COORDS", x: left, y: top });
+                    dispatch({ type: "CLICKCOORDS", x: left, y: top });
                     dispatch({ type: "CLICKED", id, popup: true });
                 }
 
@@ -126,7 +126,7 @@ const Asset = ({
         (e: React.MouseEvent<SVGGElement, MouseEvent>): void => {
             if (hoverPopupEnabled) {
                 dispatch({
-                    type: "COORDS",
+                    type: "HOVERCOORDS",
                     x: e.nativeEvent.offsetX,
                     y: e.nativeEvent.offsetY
                 });
@@ -159,6 +159,6 @@ const Asset = ({
     );
 };
 
-Asset.whyDidYouRender = true;
+// Asset.whyDidYouRender = true;
 
 export default Asset;
