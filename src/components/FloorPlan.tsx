@@ -11,15 +11,20 @@ import Asset from "./Asset";
 export interface FloorPlanProps {
     assets: AssetObject[];
     svg: string;
-    viewBox: string;
+    viewBox: string | null;
     className: string;
 }
 
-const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Element => {
+const FloorPlan = ({ svg, viewBox: propsViewBox, assets, className }: FloorPlanProps): JSX.Element => {
     const { dispatch, state } = useContext(StoreContext);
     const planRef = useRef<HTMLDivElement>(null);
 
     const size = useSize(planRef);
+
+    const viewBox = useMemo(() => (propsViewBox === null ? state.viewBox : propsViewBox), [
+        propsViewBox,
+        state.viewBox
+    ]);
 
     useThrottleEffect(
         () => {
@@ -67,11 +72,13 @@ const FloorPlan = ({ svg, viewBox, assets, className }: FloorPlanProps): JSX.Ele
                 {({ translation, scale }) => (
                     <div>
                         <Background svg={svg} x={translation.x} y={translation.y} scale={scale} />
-                        <svg className={classNames("interactive-floorplan--overlay")} viewBox={viewBox}>
-                            <g transform={`translate(${translation.x},${translation.y}) scale(${scale})`}>
-                                {AssetList}
-                            </g>
-                        </svg>
+                        {viewBox ? (
+                            <svg className={classNames("interactive-floorplan--overlay")} viewBox={viewBox}>
+                                <g transform={`translate(${translation.x},${translation.y}) scale(${scale})`}>
+                                    {AssetList}
+                                </g>
+                            </svg>
+                        ) : null}
                     </div>
                 )}
             </MapInteraction>

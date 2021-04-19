@@ -62,7 +62,8 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
     );
 
     const floorPlanSVG = props.textSVG.value;
-    const floorPlanViewBox = props.textSVGViewBox.value;
+    const autoDetermineViewBox = props.textSVGViewBox === undefined;
+    const floorPlanViewBox = props.textSVGViewBox ? (props.textSVGViewBox.value as string) : null;
 
     const onItemClick = useCallback(
         (id: string): void => {
@@ -112,6 +113,7 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
             gElementSelector: uiSelectorGElement,
             mainSelector: uiMainSelectorG,
             showPageOverlayOnClickPopup,
+            autoDetermineViewBox,
             onItemClick,
             getHoverPopupContent,
             getClickPopupContent
@@ -121,6 +123,7 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
             uiSelectorGElement,
             uiMainSelectorG,
             showPageOverlayOnClickPopup,
+            autoDetermineViewBox,
             onItemClick,
             getHoverPopupContent,
             getClickPopupContent
@@ -130,7 +133,7 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
     return (
         <StateProvider>
             <FloorPlanContext.Provider value={contextVariables}>
-                {!floorPlanSVG || !floorPlanViewBox ? (
+                {!floorPlanSVG ? (
                     undefined
                 ) : (
                     <FloorPlan className={props.class} assets={assets} svg={floorPlanSVG} viewBox={floorPlanViewBox} />

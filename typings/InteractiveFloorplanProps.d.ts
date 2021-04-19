@@ -12,7 +12,7 @@ export interface InteractiveFloorplanContainerProps {
     style?: CSSProperties;
     tabIndex?: number;
     textSVG: DynamicValue<string>;
-    textSVGViewBox: DynamicValue<string>;
+    textSVGViewBox?: DynamicValue<string>;
     dataAssets: ListValue;
     getAssetID: ListExpressionValue<string>;
     getAssetXML: ListExpressionValue<string>;

@@ -13,9 +13,9 @@
                 <description>This is the background of the floorplan. It should be an SVG.</description>
                 <returnType type="String" />
             </property>
-            <property key="textSVGViewBox" type="expression" required="true" defaultValue="">
+            <property key="textSVGViewBox" type="expression" required="false" defaultValue="">
                 <caption>Viewbox</caption>
-                <description>An SVG has a viewbox property. We need to have this separately in order to align the desk perfectly</description>
+                <description>An SVG has a viewbox property. We need to have this separately in order to align the desk perfectly. This can be determined by the background SVG automatically, but if you encounter issues, please set this value.</description>
                 <returnType type="String" />
             </property>
         </propertyGroup>

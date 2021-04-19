@@ -3,6 +3,7 @@ import { createContext, createElement, Dispatch, useReducer } from "react";
 export type StoreState = {
     selectedHoverItem: string | null;
     selectedClickItem: string | null;
+    viewBox: string;
     showHoverPopup: boolean;
     showClickPopup: boolean;
     hoverCoords: {
@@ -22,6 +23,7 @@ export type StoreState = {
 export type StoreAction =
     | { type: "HOVER"; id: string | null; popup: boolean }
     | { type: "CLICKED"; id: string | null; popup: boolean }
+    | { type: "VIEWBOX"; viewBox: string }
     | {
           type: "HOVERCOORDS";
           x: number;
@@ -39,6 +41,7 @@ const initialState: StoreState = {
     selectedHoverItem: null,
     showHoverPopup: false,
     showClickPopup: false,
+    viewBox: "",
     hoverCoords: {
         x: 0,
         y: 0
@@ -97,6 +100,11 @@ const mainReducer = (state: StoreState, action: StoreAction): StoreState => {
                 width: action.width,
                 height: action.height
             }
+        };
+    } else if (action.type === "VIEWBOX") {
+        return {
+            ...state,
+            viewBox: action.viewBox
         };
     }
     return state;

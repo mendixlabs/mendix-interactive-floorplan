@@ -7,6 +7,7 @@ import { createContext, ReactNode } from "react";
 export interface ContextVariables {
     textSelector: string | null;
     gElementSelector: string | null;
+    autoDetermineViewBox: boolean;
     mainSelector: string;
     showPageOverlayOnClickPopup: boolean;
     onItemClick: (id: string) => void;
@@ -17,6 +18,7 @@ export interface ContextVariables {
 export const FloorPlanContext = createContext<ContextVariables>({
     textSelector: null,
     gElementSelector: null,
+    autoDetermineViewBox: true,
     mainSelector: "",
     showPageOverlayOnClickPopup: true,
     onItemClick: (_id: string) => {},
