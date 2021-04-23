@@ -4,3 +4,4 @@ tests/testProject/
 *.log
 .env
 .vscode
+.DS_Store
