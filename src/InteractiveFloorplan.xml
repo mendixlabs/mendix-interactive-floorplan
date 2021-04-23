@@ -50,7 +50,21 @@
                     <returnType type="String" />
                 </property>
             </propertyGroup>
-            <propertyGroup caption="Interaction">
+            <propertyGroup caption="Areas">
+                <property key="popupHoverArea" type="widgets" required="false" dataSource="dataAssets">
+                    <caption>Popup Hover Area</caption>
+                    <description>Show a popup when hovering over the element</description>
+                </property>
+                <property key="popupClickArea" type="widgets" required="false" dataSource="dataAssets">
+                    <caption>Popup Click Area</caption>
+                    <description>Show a popup when click on the element</description>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ACTIONS -->
+        <propertyGroup caption="Interaction">
+            <propertyGroup caption="Asset Interaction">
                 <property key="getAssetClickable" type="expression" required="true" defaultValue="" dataSource="dataAssets">
                     <caption>Clickable</caption>
                     <description>Should the asset be clickable?</description>
@@ -71,24 +85,12 @@
                     <description>Show a complete page overlay (making interactions on whole page impossible) when showing a Click Popup</description>
                 </property>
             </propertyGroup>
-            <propertyGroup caption="Areas">
-                <property key="popupHoverArea" type="widgets" required="false" dataSource="dataAssets">
-                    <caption>Popup Hover Area</caption>
-                    <description>Show a popup when hovering over the element</description>
-                </property>
-                <property key="popupClickArea" type="widgets" required="false" dataSource="dataAssets">
-                    <caption>Popup Click Area</caption>
-                    <description>Show a popup when click on the element</description>
+            <propertyGroup caption="Asset Actions">
+                <property key="actionClickAsset" type="action" required="false" dataSource="dataAssets">
+                    <caption>On Click</caption>
+                    <description></description>
                 </property>
             </propertyGroup>
-        </propertyGroup>
-
-        <!-- ACTIONS -->
-        <propertyGroup caption="Actions">
-            <property key="actionClickAsset" type="action" required="false" dataSource="dataAssets">
-                <caption>On Click</caption>
-                <description></description>
-            </property>
         </propertyGroup>
 
         <!-- MISC -->
