@@ -1,9 +1,10 @@
 import { createContext, createElement, Dispatch, useReducer } from "react";
 
 export type StoreState = {
+    selectedInitial: string | null;
     selectedHoverItem: string | null;
     selectedClickItem: string | null;
-    viewBox: string;
+    viewBox: string | null;
     showHoverPopup: boolean;
     showClickPopup: boolean;
     hoverCoords: {
@@ -17,6 +18,7 @@ export type StoreState = {
     svgSizes: {
         width: number;
         height: number;
+        rect: DOMRect;
     };
 };
 
@@ -34,9 +36,10 @@ export type StoreAction =
           x: number;
           y: number;
       }
-    | { type: "SETSIZE"; width: number; height: number };
+    | { type: "SETSIZE"; width: number; height: number; rect: DOMRect };
 
-const initialState: StoreState = {
+const startState: StoreState = {
+    selectedInitial: null,
     selectedClickItem: null,
     selectedHoverItem: null,
     showHoverPopup: false,
@@ -52,7 +55,8 @@ const initialState: StoreState = {
     },
     svgSizes: {
         width: 1,
-        height: 1
+        height: 1,
+        rect: new DOMRect()
     }
 };
 
@@ -60,7 +64,7 @@ const StoreContext = createContext<{
     state: StoreState;
     dispatch: Dispatch<StoreAction>;
 }>({
-    state: initialState,
+    state: startState,
     dispatch: () => null
 });
 
@@ -98,7 +102,8 @@ const mainReducer = (state: StoreState, action: StoreAction): StoreState => {
             ...state,
             svgSizes: {
                 width: action.width,
-                height: action.height
+                height: action.height,
+                rect: action.rect
             }
         };
     } else if (action.type === "VIEWBOX") {
@@ -111,11 +116,12 @@ const mainReducer = (state: StoreState, action: StoreAction): StoreState => {
 };
 
 interface StateProviderProps {
+    initialState?: Partial<StoreState>;
     children?: JSX.Element;
 }
 
-const StateProvider = ({ children }: StateProviderProps): JSX.Element => {
-    const [state, dispatch] = useReducer(mainReducer, initialState);
+const StateProvider = ({ children, initialState }: StateProviderProps): JSX.Element => {
+    const [state, dispatch] = useReducer(mainReducer, { ...startState, ...initialState });
 
     return <StoreContext.Provider value={{ state, dispatch }}>{children}</StoreContext.Provider>;
 };

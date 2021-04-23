@@ -8,103 +8,50 @@ import { ContextVariables, FloorPlanContext } from "./context/FloorPlanContext";
 import { StateProvider } from "./store";
 
 import "./ui/InteractiveFloorplan.scss";
+import { executeAction, getPopupContent } from "./util";
 import { getAssetObjects } from "./util/assets";
 
 const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactNode => {
     const {
         dataAssets,
         actionClickAsset,
-        getAssetID,
-        getAssetXML,
-        getAssetClickable,
-        getAssetShowHoverPopup,
-        getAssetShowClickPopup,
-        getAssetTransform,
-        getAssetClassName,
-        getAssetShapeStyling,
+        actionOnCloseClickPopup,
         showPageOverlayOnClickPopup,
         uiMainSelectorG,
         uiSelectorGElement,
         uiSelectorText,
         popupHoverArea,
-        popupClickArea
+        popupClickArea,
+        hoverPopupClassName,
+        clickPopupClassName,
+        popupOffsetJSON
     } = props;
 
-    const assets = useMemo(
-        () =>
-            getAssetObjects(
-                {
-                    getTitle: getAssetID,
-                    getXML: getAssetXML,
-                    getTransform: getAssetTransform,
-                    getShapeStyling: getAssetShapeStyling,
-                    getClickable: getAssetClickable,
-                    getHoverPopupEnabled: getAssetShowHoverPopup,
-                    getClickPopupEnabled: getAssetShowClickPopup,
-                    getClassName: getAssetClassName
-                },
-                !!actionClickAsset || !!popupClickArea,
-                props.dataAssets.items
-            ),
-        [
-            actionClickAsset,
-            popupClickArea,
-            getAssetClassName,
-            getAssetClickable,
-            getAssetID,
-            getAssetShapeStyling,
-            getAssetShowHoverPopup,
-            getAssetShowClickPopup,
-            getAssetTransform,
-            getAssetXML,
-            props.dataAssets.items
-        ]
-    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const assets = useMemo(() => getAssetObjects(props), [props.dataAssets.items]);
 
     const floorPlanSVG = props.textSVG.value;
     const autoDetermineViewBox = props.textSVGViewBox === undefined;
     const floorPlanViewBox = props.textSVGViewBox ? (props.textSVGViewBox.value as string) : null;
 
-    const onItemClick = useCallback(
-        (id: string): void => {
-            const object = dataAssets.items?.find(obj => obj.id === id);
+    const onItemClick = useCallback((id: string): void => executeAction(id, dataAssets.items, actionClickAsset), [
+        actionClickAsset,
+        dataAssets.items
+    ]);
 
-            if (object && actionClickAsset) {
-                const action = actionClickAsset(object);
-                if (action && action.canExecute && !action.isExecuting) {
-                    action.execute();
-                }
-            }
-        },
-        [actionClickAsset, dataAssets.items]
+    const onClosePopup = useCallback(
+        (id?: string): void => executeAction(id, dataAssets.items, actionOnCloseClickPopup),
+        [actionOnCloseClickPopup, dataAssets.items]
     );
 
     const getHoverPopupContent = useCallback(
-        (id: string): ReactNode => {
-            if (!id || !popupHoverArea) {
-                return null;
-            }
-            const object = dataAssets.items?.find(obj => obj.id === id);
-            if (object) {
-                return popupHoverArea(object);
-            }
-            return null;
-        },
-        [popupHoverArea, dataAssets.items]
+        (id: string) => getPopupContent(id, dataAssets.items, popupHoverArea, hoverPopupClassName, popupOffsetJSON),
+        [dataAssets.items, popupHoverArea, hoverPopupClassName, popupOffsetJSON]
     );
 
     const getClickPopupContent = useCallback(
-        (id: string): ReactNode => {
-            if (!id || !popupClickArea) {
-                return null;
-            }
-            const object = dataAssets.items?.find(obj => obj.id === id);
-            if (object) {
-                return popupClickArea(object);
-            }
-            return null;
-        },
-        [popupClickArea, dataAssets.items]
+        (id: string) => getPopupContent(id, dataAssets.items, popupClickArea, clickPopupClassName, popupOffsetJSON),
+        [dataAssets.items, popupClickArea, clickPopupClassName, popupOffsetJSON]
     );
 
     const contextVariables: ContextVariables = useMemo(
@@ -115,6 +62,7 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
             showPageOverlayOnClickPopup,
             autoDetermineViewBox,
             onItemClick,
+            onClosePopup,
             getHoverPopupContent,
             getClickPopupContent
         }),
@@ -125,19 +73,16 @@ const InteractiveFloorplan = (props: InteractiveFloorplanContainerProps): ReactN
             showPageOverlayOnClickPopup,
             autoDetermineViewBox,
             onItemClick,
+            onClosePopup,
             getHoverPopupContent,
             getClickPopupContent
         ]
     );
 
     return (
-        <StateProvider>
+        <StateProvider initialState={{ viewBox: floorPlanViewBox }}>
             <FloorPlanContext.Provider value={contextVariables}>
-                {!floorPlanSVG ? (
-                    undefined
-                ) : (
-                    <FloorPlan className={props.class} assets={assets} svg={floorPlanSVG} viewBox={floorPlanViewBox} />
-                )}
+                {!floorPlanSVG ? undefined : <FloorPlan className={props.class} assets={assets} svg={floorPlanSVG} />}
             </FloorPlanContext.Provider>
         </StateProvider>
     );

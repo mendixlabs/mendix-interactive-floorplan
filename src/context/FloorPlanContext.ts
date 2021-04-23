@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 
-import { createContext, ReactNode } from "react";
+import { createContext } from "react";
+import { defaultTooltipOffset, PopupContent } from "../util";
 
 export interface ContextVariables {
     textSelector: string | null;
@@ -11,8 +12,9 @@ export interface ContextVariables {
     mainSelector: string;
     showPageOverlayOnClickPopup: boolean;
     onItemClick: (id: string) => void;
-    getHoverPopupContent: (id: string) => ReactNode;
-    getClickPopupContent: (id: string) => ReactNode;
+    onClosePopup: (id?: string) => void;
+    getHoverPopupContent: (id?: string | null) => PopupContent;
+    getClickPopupContent: (id?: string | null) => PopupContent;
 }
 
 export const FloorPlanContext = createContext<ContextVariables>({
@@ -22,6 +24,7 @@ export const FloorPlanContext = createContext<ContextVariables>({
     mainSelector: "",
     showPageOverlayOnClickPopup: true,
     onItemClick: (_id: string) => {},
-    getHoverPopupContent: (_id: string) => null,
-    getClickPopupContent: (_id: string) => null
+    onClosePopup: (_id?: string) => {},
+    getHoverPopupContent: (_id: string) => ({ content: null, className: "", offset: defaultTooltipOffset }),
+    getClickPopupContent: (_id: string) => ({ content: null, className: "", offset: defaultTooltipOffset })
 });

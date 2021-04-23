@@ -3,15 +3,12 @@ import { useKeyPress, useClickAway, useDebounce } from "ahooks";
 import classNames from "classnames";
 import { FloorPlanContext } from "../context/FloorPlanContext";
 import { StoreContext } from "../store";
-
-const tooltipOffset = {
-    x: 15,
-    y: -40
-};
+import { TooltipOffset } from "../util";
 
 const getPositionStyle = (
     svgSizes: { width: number; height: number },
-    coords: { x: number; y: number }
+    coords: { x: number; y: number },
+    offset: TooltipOffset
 ): { positionX: "right" | "left"; positionY: "top" | "bottom"; style: CSSProperties } => {
     const positionX = coords.x >= svgSizes.width / 2 ? "right" : "left";
     const positionY = coords.y >= svgSizes.height / 2 ? "bottom" : "top";
@@ -19,15 +16,15 @@ const getPositionStyle = (
     const style: CSSProperties = {};
 
     if (positionX === "left") {
-        style.left = coords.x + tooltipOffset.x;
+        style.left = coords.x + offset.x;
     } else {
-        style.right = svgSizes.width - coords.x + tooltipOffset.x;
+        style.right = svgSizes.width - coords.x + offset.x;
     }
 
     if (positionY === "top") {
-        style.top = coords.y + tooltipOffset.y;
+        style.top = coords.y + offset.y;
     } else {
-        style.bottom = svgSizes.height - coords.y + tooltipOffset.y;
+        style.bottom = svgSizes.height - coords.y + offset.y;
     }
 
     return {
@@ -41,9 +38,13 @@ export const HoverPopup = (): JSX.Element => {
     const { getHoverPopupContent } = useContext(FloorPlanContext);
     const { state } = useContext(StoreContext);
     const { hoverCoords, svgSizes, selectedHoverItem, showHoverPopup } = state;
-    const { style, positionX, positionY } = useMemo(() => getPositionStyle(svgSizes, hoverCoords), [
+    const { content, className, offset } = getHoverPopupContent(
+        showHoverPopup && !!hoverCoords && showHoverPopup ? selectedHoverItem : null
+    );
+    const { style, positionX, positionY } = useMemo(() => getPositionStyle(svgSizes, hoverCoords, offset), [
         svgSizes,
-        hoverCoords
+        hoverCoords,
+        offset
     ]);
     const showPopup = selectedHoverItem !== null && !!hoverCoords && showHoverPopup;
 
@@ -51,7 +52,6 @@ export const HoverPopup = (): JSX.Element => {
         return <Fragment />;
     }
 
-    const popup = selectedHoverItem !== null && showHoverPopup ? getHoverPopupContent(selectedHoverItem) : null;
     const popupType = selectedHoverItem !== null && showHoverPopup ? "hover" : null;
 
     return (
@@ -65,18 +65,19 @@ export const HoverPopup = (): JSX.Element => {
                         "type--hover": popupType === "hover"
                     },
                     positionX,
-                    positionY
+                    positionY,
+                    className
                 )}
                 style={showPopup ? style : {}}
             >
-                <div className={classNames("inner")}>{popup}</div>
+                <div className={classNames("inner")}>{content}</div>
             </div>
         </Fragment>
     );
 };
 
 export const ClickPopup = (): JSX.Element => {
-    const { getClickPopupContent, showPageOverlayOnClickPopup } = useContext(FloorPlanContext);
+    const { getClickPopupContent, showPageOverlayOnClickPopup, onClosePopup } = useContext(FloorPlanContext);
     const ref = useRef<HTMLDivElement>(null);
     const { state, dispatch } = useContext(StoreContext);
     const { clickCoords, svgSizes, selectedClickItem: selectedItem, showClickPopup } = state;
@@ -84,7 +85,10 @@ export const ClickPopup = (): JSX.Element => {
 
     const shown = useDebounce(showPopup, { wait: 500 });
 
-    const closePopup = (): void => {
+    const closePopup = (triggerAction = true): void => {
+        if (selectedItem && triggerAction) {
+            onClosePopup(selectedItem);
+        }
         dispatch({ type: "CLICKED", id: null, popup: false });
     };
 
@@ -98,12 +102,14 @@ export const ClickPopup = (): JSX.Element => {
         }
     }, ref);
 
-    const popup = selectedItem !== null && showClickPopup ? getClickPopupContent(selectedItem) : null;
+    const { content, className, offset } = getClickPopupContent(showClickPopup ? selectedItem : null);
     const popupType = selectedItem !== null && showClickPopup ? "click" : null;
-    const { style, positionX, positionY } = useMemo(() => getPositionStyle(svgSizes, clickCoords), [
+    const { style, positionX, positionY } = useMemo(() => getPositionStyle(svgSizes, clickCoords, offset), [
         svgSizes,
-        clickCoords
+        clickCoords,
+        offset
     ]);
+
     const closeButton = useMemo(
         () => (
             <button
@@ -111,12 +117,12 @@ export const ClickPopup = (): JSX.Element => {
                 className={classNames("close")}
                 data-dismiss="modal"
                 aria-label="Close"
-                onClick={closePopup}
+                onClick={() => closePopup()}
             >
                 <span aria-hidden="true">×</span>
             </button>
         ),
-        []
+        [selectedItem]
     );
 
     return (
@@ -133,12 +139,13 @@ export const ClickPopup = (): JSX.Element => {
                         "type--click": popupType !== null
                     },
                     positionX,
-                    positionY
+                    positionY,
+                    className
                 )}
                 style={showPopup ? style : {}}
                 ref={ref}
             >
-                <div className={classNames("inner")}>{popup}</div>
+                <div className={classNames("inner")}>{content}</div>
                 {showClickPopup ? closeButton : null}
             </div>
         </Fragment>

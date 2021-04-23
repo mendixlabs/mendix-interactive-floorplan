@@ -11,25 +11,21 @@ import Asset from "./Asset";
 export interface FloorPlanProps {
     assets: AssetObject[];
     svg: string;
-    viewBox: string | null;
     className: string;
 }
 
-const FloorPlan = ({ svg, viewBox: propsViewBox, assets, className }: FloorPlanProps): JSX.Element => {
+const FloorPlan = ({ svg, assets, className }: FloorPlanProps): JSX.Element => {
     const { dispatch, state } = useContext(StoreContext);
+    const { viewBox } = state;
+
     const planRef = useRef<HTMLDivElement>(null);
-
     const size = useSize(planRef);
-
-    const viewBox = useMemo(() => (propsViewBox === null ? state.viewBox : propsViewBox), [
-        propsViewBox,
-        state.viewBox
-    ]);
 
     useThrottleEffect(
         () => {
-            if (size.width !== undefined && size.height !== undefined) {
-                dispatch({ type: "SETSIZE", width: size.width, height: size.height });
+            if (size.width !== undefined && size.height !== undefined && planRef.current) {
+                const rect = planRef.current.getBoundingClientRect();
+                dispatch({ type: "SETSIZE", width: size.width, height: size.height, rect });
             }
         },
         [size],
@@ -44,8 +40,9 @@ const FloorPlan = ({ svg, viewBox: propsViewBox, assets, className }: FloorPlanP
             (window as any).com = (window as any).com || {};
             (window as any).com.mendix = (window as any).com.mendix || {};
             (window as any).com.mendix.InteractiveFloorplan = (window as any).com.mendix.InteractiveFloorplan || {};
-            (window as any).com.mendix.InteractiveFloorplan.closePopup = () => {
+            (window as any).com.mendix.InteractiveFloorplan.closePopup = (triggerAction = true) => {
                 dispatch({ type: "CLICKED", id: null, popup: false });
+                console.log(triggerAction);
             };
         }
 

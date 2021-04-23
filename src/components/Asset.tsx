@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { $, text, css, parents, is } from "dom7";
+import { $, text, css } from "dom7";
 import React, {
     createElement,
     CSSProperties,
@@ -15,8 +15,6 @@ import { StoreContext } from "../store";
 
 $.fn.text = text;
 $.fn.css = css;
-$.fn.is = is;
-$.fn.parents = parents;
 
 export interface AssetProps {
     id: string;
@@ -42,7 +40,8 @@ const Asset = ({
     className
 }: AssetProps): JSX.Element => {
     const { textSelector, gElementSelector, onItemClick } = useContext(FloorPlanContext);
-    const { dispatch } = useContext(StoreContext);
+    const { dispatch, state } = useContext(StoreContext);
+    const { svgSizes } = state;
 
     const assetRef = useRef<SVGGElement | null>(null);
 
@@ -91,26 +90,22 @@ const Asset = ({
         }
     }, [id, shapeStyling, gElementSelector, styleSet]);
 
-    const onClick = useCallback(
-        (e: React.MouseEvent<SVGGElement, MouseEvent>): void => {
-            if (isClickable) {
-                if (clickPopupEnabled) {
-                    const currentRect = e.currentTarget.getBoundingClientRect();
-                    const parentContainer = $(e.currentTarget).parents(".interactive-floorplan")[0];
-                    const parentRect = parentContainer.getBoundingClientRect();
-                    const top = Math.round(currentRect.top - parentRect.top + currentRect.height / 2);
-                    const left = Math.round(currentRect.left - parentRect.left + currentRect.width / 2);
-                    dispatch({ type: "CLICKCOORDS", x: left, y: top });
-                    dispatch({ type: "CLICKED", id, popup: true });
-                }
-
-                if (onItemClick) {
-                    onItemClick(id);
-                }
+    const onClick = useCallback((): void => {
+        if (isClickable) {
+            if (clickPopupEnabled) {
+                const currentRect = (assetRef.current as SVGGElement).getBoundingClientRect();
+                const parentRect = svgSizes.rect;
+                const top = Math.round(currentRect.top - parentRect.top + currentRect.height / 2);
+                const left = Math.round(currentRect.left - parentRect.left + currentRect.width / 2);
+                dispatch({ type: "CLICKCOORDS", x: left, y: top });
+                dispatch({ type: "CLICKED", id, popup: true });
             }
-        },
-        [isClickable, id, onItemClick, clickPopupEnabled]
-    );
+
+            if (onItemClick) {
+                onItemClick(id);
+            }
+        }
+    }, [isClickable, clickPopupEnabled, onItemClick, svgSizes.rect, dispatch, id]);
 
     const onHover = useCallback(
         (state: boolean): void => {
@@ -119,7 +114,7 @@ const Asset = ({
                 dispatch({ type: "HOVER", id: state ? id : null, popup: state && hoverPopupEnabled });
             }
         },
-        [id, hoverPopupEnabled]
+        [hoverPopupEnabled, dispatch, id]
     );
 
     const dispathMouseEvent = useCallback(
@@ -132,7 +127,7 @@ const Asset = ({
                 });
             }
         },
-        [hoverPopupEnabled]
+        [dispatch, hoverPopupEnabled]
     );
 
     return (

@@ -1,5 +1,6 @@
-import { ObjectItem, DynamicValue, ListWidgetValue } from "mendix";
+import { ObjectItem, ListWidgetValue } from "mendix";
 import { ReactNode } from "react";
+import { InteractiveFloorplanContainerProps } from "../../typings/InteractiveFloorplanProps";
 
 export interface AssetObject {
     id: string;
@@ -13,43 +14,34 @@ export interface AssetObject {
     className: string;
 }
 
-export const getAssetObjects = (
-    funcs: {
-        getTitle: (obj: ObjectItem) => DynamicValue<string>;
-        getXML: (obj: ObjectItem) => DynamicValue<string>;
-        getTransform: (obj: ObjectItem) => DynamicValue<string>;
-        getClickable: (obj: ObjectItem) => DynamicValue<boolean>;
-        getHoverPopupEnabled: (obj: ObjectItem) => DynamicValue<boolean>;
-        getClickPopupEnabled: (obj: ObjectItem) => DynamicValue<boolean>;
-        getShapeStyling?: (obj: ObjectItem) => DynamicValue<string>;
-        getClassName?: (obj: ObjectItem) => DynamicValue<string>;
-    },
-    clickActionDefined: boolean,
-    items?: ObjectItem[]
-): AssetObject[] => {
-    const {
-        getTitle,
-        getXML,
-        getTransform,
-        getClickable,
-        getHoverPopupEnabled,
-        getClickPopupEnabled,
-        getShapeStyling,
-        getClassName
-    } = funcs;
+export const getAssetObjects = ({
+    getAssetID,
+    getAssetXML,
+    getAssetTransform,
+    getAssetClickable,
+    getAssetShowHoverPopup,
+    getAssetShowClickPopup,
+    getAssetShapeStyling,
+    getAssetClassName,
+    actionClickAsset,
+    popupClickArea,
+    dataAssets
+}: InteractiveFloorplanContainerProps): AssetObject[] => {
+    const items = dataAssets.items;
+    const clickActionDefined = !!actionClickAsset || !!popupClickArea;
     if (!items) {
         return [];
     }
     const assetObjects: AssetObject[] = items.map(obj => {
         const id = obj.id;
-        const title = getTitle(obj).value;
-        const xml = getXML(obj).value;
-        const transform = getTransform(obj).value;
-        const isClickable = clickActionDefined && getClickable(obj).value;
-        const hoverPopupEnabled = getHoverPopupEnabled(obj).value;
-        const clickPopupEnabled = getClickPopupEnabled(obj).value;
-        const shapeStyling = getShapeStyling ? getShapeStyling(obj).value : "";
-        const className = getClassName ? getClassName(obj).value : "";
+        const title = getAssetID(obj).value;
+        const xml = getAssetXML(obj).value;
+        const transform = getAssetTransform(obj).value;
+        const isClickable = clickActionDefined && getAssetClickable(obj).value;
+        const hoverPopupEnabled = getAssetShowHoverPopup(obj).value;
+        const clickPopupEnabled = getAssetShowClickPopup(obj).value;
+        const shapeStyling = getAssetShapeStyling ? getAssetShapeStyling(obj).value : "";
+        const className = getAssetClassName ? getAssetClassName(obj).value : "";
 
         return {
             id,
